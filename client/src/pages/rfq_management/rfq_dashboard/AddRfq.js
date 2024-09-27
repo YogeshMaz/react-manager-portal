@@ -62,7 +62,7 @@ const AddProject = () => {
       projectNumber: Yup.string().required("Project Number is required."),
       customer: Yup.string().required("Customer is required."),
       referenceNo: Yup.string().required("Reference No is required."),
-      partDescription: Yup.string().required("Part Description is required."),
+      partDescription: Yup.string(),
       rfqStartDate: Yup.date()
         .nullable()
         .required("RFQ Start Date is required."),
@@ -70,31 +70,38 @@ const AddProject = () => {
         .nullable()
         .required("RFQ End Date is required.")
         .min(Yup.ref("rfqStartDate"), "End date must be after start date."),
-      targetPrice: Yup.number().required("Target Price is required."),
-      totalOrderValue: Yup.number().required("Total Order Value is required."),
-      bestQuotePartner: Yup.string().required(
-        "Best Quote Partner is required."
-      ),
-      vendorPrice: Yup.number().required("Vendor Price is required."),
-      leadTime: Yup.number().required("Lead Time is required."),
-      totalCost: Yup.number().required("Total Cost is required."),
+      targetPrice: Yup.number(),
+      totalOrderValue: Yup.number(),
+      bestQuotePartner: Yup.string(),
+      vendorPrice: Yup.number(),
+      leadTime: Yup.number(),
+      totalCost: Yup.number(),
     }),
     onSubmit: async (values) => {
       const formData = new FormData();
       for (const key in values) {
         formData.append(key, values[key]);
       }
+
+      // Log FormData contents
+      console.log("Form Data Contents:");
+      for (let [key, value] of formData.entries()) {
+        // console.log(`${key}:`, value);
+      }
+
       try {
         const response = await fetch(
-          "http://localhost:5000/api/project_management/projects",
+          "http://localhost:5000/api/rfq_management/add_rfq_record",
           {
             method: "POST",
             body: formData,
           }
         );
+
         if (!response.ok) {
           throw new Error("Failed to submit data");
         }
+
         console.log("Form submitted successfully", await response.json());
       } catch (error) {
         console.error("Error submitting form:", error);
@@ -291,23 +298,26 @@ const AddProject = () => {
           </Grid>
 
           {/* Allocate to Partner Multi-Select */}
-          {/* Allocate to Partner Multi-Select */}
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={8}>
             <Autocomplete
               multiple
               options={
                 formik.values.partnerCategory === "Manufacturing"
-                  ? pcndaList // Directly use the list without assignment
+                  ? pcndaList // Use the list directly based on the selected category
                   : formik.values.partnerCategory === "EMS"
                   ? emsList
                   : formik.values.partnerCategory === "Fabrication"
                   ? fabList
                   : [] // No selection
               }
-              getOptionLabel={(option) => option} // Directly use option as the label
-              value={formik.values.allocateToPartner} // Use the array as is, without mapping
+              getOptionLabel={(option) => option} // Ensure this is returning the option as a string
+              value={formik.values.allocateToPartner || []} // Ensure this is always an array
               onChange={(event, newValue) => {
-                formik.setFieldValue("allocateToPartner", newValue);
+                // Set the selected values in Formik and ensure they are plain strings
+                formik.setFieldValue(
+                  "allocateToPartner",
+                  newValue.map((item) => item.trim())
+                );
               }}
               renderInput={(params) => (
                 <TextField
@@ -319,47 +329,56 @@ const AddProject = () => {
                 />
               )}
               renderOption={(props, option) => (
-                <li {...props}>
-                  <ListItemText primary={option} />{" "}
-                  {/* Simple list item without checkbox */}
+                <li {...props} style={{ padding: "8px", cursor: "pointer" }}>
+                  {option}
                 </li>
               )}
-              ChipProps={{ color: "primary" }} // This will style the selected chips
+              ChipProps={{
+                color: "secondary",
+                style: { backgroundColor: "#0082d9", color: "white" },
+              }}
             />
           </Grid>
 
-          {/* Best Quote Partner Autocomplete */}
-          <Grid item xs={12} sm={4}>
+          {/* Best Quote Partner Multi-Select */}
+          {/* <Grid item xs={12} sm={4}>
             <Autocomplete
-              options={formik.values.allocateToPartner} // Use the allocated partners as the options
-              value={formik.values.bestQuotePartner}
+              multiple
+              options={formik.values.allocateToPartner || []} // Use the selected partners from Allocate to Partner
+              value={formik.values.bestQuotePartner || []} // Ensure this is also an array
               onChange={(event, newValue) => {
-                formik.setFieldValue("bestQuotePartner", newValue);
+                // Log selected values for debugging
+                console.log(
+                  "Selected Values for Best Quote Partner: ",
+                  newValue
+                ); // Debugging line
+                // Set the selected values in Formik, ensuring they are plain strings
+                formik.setFieldValue(
+                  "bestQuotePartner",
+                  newValue.map((item) => item.trim())
+                ); // Trim any unwanted spaces
               }}
               renderInput={(params) => (
                 <TextField
                   {...params}
                   label="Best Quote Partner"
+                  placeholder="Select Partners"
                   error={Boolean(formik.errors.bestQuotePartner)}
                   helperText={formik.errors.bestQuotePartner}
                 />
               )}
+              getOptionLabel={(option) => option} // Ensure it uses the plain string
+              renderOption={(props, option) => (
+                <li {...props} style={{ padding: "8px", cursor: "pointer" }}>
+                  {option}
+                </li>
+              )}
+              ChipProps={{
+                color: "secondary",
+                style: { backgroundColor: "#0082d9", color: "white" },
+              }}
             />
-          </Grid>
-
-          {/* Vendor Price */}
-          <Grid item xs={12} sm={4}>
-            <TextField
-              label="Vendor Price"
-              type="number"
-              name="vendorPrice"
-              value={formik.values.vendorPrice}
-              onChange={formik.handleChange}
-              fullWidth
-              error={Boolean(formik.errors.vendorPrice)}
-              helperText={formik.errors.vendorPrice}
-            />
-          </Grid>
+          </Grid> */}
 
           {/* Lead Time */}
           <Grid item xs={12} sm={4}>
@@ -386,6 +405,20 @@ const AddProject = () => {
               fullWidth
               error={Boolean(formik.errors.totalCost)}
               helperText={formik.errors.totalCost}
+            />
+          </Grid>
+
+          {/* Vendor Price */}
+          <Grid item xs={12} sm={4}>
+            <TextField
+              label="Vendor Price"
+              type="number"
+              name="vendorPrice"
+              value={formik.values.vendorPrice}
+              onChange={formik.handleChange}
+              fullWidth
+              error={Boolean(formik.errors.vendorPrice)}
+              helperText={formik.errors.vendorPrice}
             />
           </Grid>
 

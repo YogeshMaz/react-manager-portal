@@ -126,6 +126,25 @@ export const fetchAddRfqs = async (req, res) => {
 //   }
 // };
 
+export const addRfqRecords = async (req, res) => {
+  try {
+    // Process incoming data
+    const data = {
+      fields: req.body, // All form fields
+      files: req.files,  // The uploaded files
+    };
+
+    console.log("Received data:", data); // Log the data for debugging
+
+    // Here you can implement your logic to save the RFQ records to your database
+    
+    res.json({ message: 'RFQ records added successfully!', data });
+  } catch (error) {
+    console.error("Error adding RFQs:", error); // Log any errors
+    res.status(500).json({ message: "Error fetching add RFQs" });
+  }
+};
+
 /** Partner RFQ Response **/
 export const fetchPartnerRfqResponse = async (req, res) => {
   try {
