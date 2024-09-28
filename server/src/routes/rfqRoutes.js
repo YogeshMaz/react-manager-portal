@@ -7,26 +7,11 @@ import {
   fetchCancelledRfqs,
   fetchPartnerRfqResponse,
   fetchAddRfqs,
-  addRfqRecords
+  addRfqRecords,
 } from "../controllers/rfqController.js";
 
 import multer from "multer";
-
-// Set up multer for file uploads
-const upload = multer({ dest: 'uploads/' });
-
-
-// // Configure multer storage options if needed
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, 'uploads/'); // Directory to save files
-//   },
-//   filename: function (req, file, cb) {
-//     cb(null, file.originalname); // Keep original file name
-//   },
-// });
-
-// const upload = multer({ storage });
+const upload = multer({ dest: "uploads/" });
 
 const router = express.Router();
 
@@ -39,7 +24,14 @@ router.get("/rfq_dashboard/add_rfqs", fetchAddRfqs);
 router.get("/partner_rfq_responses", fetchPartnerRfqResponse);
 
 // Define the route with file upload
-router.post('/add_rfq_record', upload.array('files'), addRfqRecords);
-
+// Handling multiple file uploads
+router.post(
+  "/add_rfq_record",
+  upload.fields([
+    { name: "drawingFile", maxCount: 1 }, // Handle drawing file
+    { name: "partnerQuoteFile", maxCount: 1 }, // Handle partner quote file
+  ]),
+  addRfqRecords
+);
 
 export default router;

@@ -26,13 +26,28 @@ const AddProject = () => {
   const { data, error, noData } = useFetchCustomDataV1(
     APILinkRoutes.AddRfqsRoute
   );
-
-  // Safely destructure data
-  const projectNumbers = data?.project_nos?.all_project_nos || [];
-  const customerLists = data?.Customer_names?.all_cust_names || [];
-  const pcndaList = data?.partner_names?.all_partner_names?.PCndA || [];
-  const emsList = data?.partner_names?.all_partner_names?.ems || [];
-  const fabList = data?.partner_names?.all_partner_names?.fab || [];
+  console.log("render", data);
+  // Safely destructure data using memoization to prevent re-renders
+  const projectNumbers = React.useMemo(
+    () => data?.project_nos?.all_project_nos || [],
+    [data]
+  );
+  const customerLists = React.useMemo(
+    () => data?.Customer_names?.all_cust_names || [],
+    [data]
+  );
+  const pcndaList = React.useMemo(
+    () => data?.partner_names?.all_partner_names?.PCndA || [],
+    [data]
+  );
+  const emsList = React.useMemo(
+    () => data?.partner_names?.all_partner_names?.ems || [],
+    [data]
+  );
+  const fabList = React.useMemo(
+    () => data?.partner_names?.all_partner_names?.fab || [],
+    [data]
+  );
 
   const rfqStatus = ["Bidding", "Closed", "On Hold"];
   const partnerCategory = ["Manufacturing", "Fabrication", "EMS"];
@@ -57,6 +72,8 @@ const AddProject = () => {
       totalCost: "",
       drawingFile: null,
       partnerQuoteFile: null,
+      projectLookUpId: "",
+      customerLookUpId: "",
     },
     validationSchema: Yup.object({
       projectNumber: Yup.string().required("Project Number is required."),
@@ -79,14 +96,26 @@ const AddProject = () => {
     }),
     onSubmit: async (values) => {
       const formData = new FormData();
+
+      // Iterate over the form fields
       for (const key in values) {
-        formData.append(key, values[key]);
+        if (values[key] instanceof File) {
+          // If it's a file, append it to the formData
+          formData.append(key, values[key]);
+        } else if (key === "allocateToPartner") {
+          // Convert allocateToPartner array to JSON string
+          const partnerNames = values.allocateToPartner.map(
+            (partner) => partner.name_of_organisation
+          );
+          formData.append(key, JSON.stringify(partnerNames)); // Append the serialized array
+        } else {
+          formData.append(key, values[key]); // Append other fields
+        }
       }
 
-      // Log FormData contents
       console.log("Form Data Contents:");
       for (let [key, value] of formData.entries()) {
-        // console.log(`${key}:`, value);
+        console.log(`${key}:`, value);
       }
 
       try {
@@ -128,10 +157,22 @@ const AddProject = () => {
           {/* Project Number Autocomplete */}
           <Grid item xs={12} sm={4}>
             <Autocomplete
-              options={projectNumbers}
-              value={formik.values.projectNumber}
+              options={projectNumbers} // Pass the array of project objects
+              getOptionLabel={(option) => option.project_number || ""} // Display project_number in the dropdown
+              value={
+                projectNumbers.find(
+                  (item) => item.look_up_id === formik.values.projectLookUpId // Find the selected item based on look_up_id
+                ) || null
+              }
               onChange={(event, newValue) => {
-                formik.setFieldValue("projectNumber", newValue);
+                formik.setFieldValue(
+                  "projectNumber",
+                  newValue?.project_number || "" // Set project_number in Formik state
+                );
+                formik.setFieldValue(
+                  "projectLookUpId",
+                  newValue?.look_up_id || "" // Use look_up_id in Formik state
+                );
               }}
               renderInput={(params) => (
                 <TextField
@@ -148,9 +189,21 @@ const AddProject = () => {
           <Grid item xs={12} sm={4}>
             <Autocomplete
               options={customerLists}
-              value={formik.values.customer}
+              getOptionLabel={(option) => option.customer_organisation || ""}
+              value={
+                customerLists.find(
+                  (item) => item.look_up_id === formik.values.customerLookUpId // Use a unique look_up_id for customers
+                ) || null
+              }
               onChange={(event, newValue) => {
-                formik.setFieldValue("customer", newValue);
+                formik.setFieldValue(
+                  "customer",
+                  newValue?.customer_organisation || ""
+                );
+                formik.setFieldValue(
+                  "customerLookUpId",
+                  newValue?.look_up_id || ""
+                ); // Use a distinct field for customer look_up_id
               }}
               renderInput={(params) => (
                 <TextField
@@ -303,21 +356,18 @@ const AddProject = () => {
               multiple
               options={
                 formik.values.partnerCategory === "Manufacturing"
-                  ? pcndaList // Use the list directly based on the selected category
+                  ? pcndaList
                   : formik.values.partnerCategory === "EMS"
                   ? emsList
                   : formik.values.partnerCategory === "Fabrication"
                   ? fabList
-                  : [] // No selection
+                  : []
               }
-              getOptionLabel={(option) => option} // Ensure this is returning the option as a string
-              value={formik.values.allocateToPartner || []} // Ensure this is always an array
+              getOptionLabel={(option) => option.name_of_organisation || ""} // Display organization name
+              value={formik.values.allocateToPartner} // Formik state should be an array
               onChange={(event, newValue) => {
-                // Set the selected values in Formik and ensure they are plain strings
-                formik.setFieldValue(
-                  "allocateToPartner",
-                  newValue.map((item) => item.trim())
-                );
+                // Set the selected values in Formik
+                formik.setFieldValue("allocateToPartner", newValue);
               }}
               renderInput={(params) => (
                 <TextField
@@ -330,7 +380,8 @@ const AddProject = () => {
               )}
               renderOption={(props, option) => (
                 <li {...props} style={{ padding: "8px", cursor: "pointer" }}>
-                  {option}
+                  {option.name_of_organisation}{" "}
+                  {/* Display the organization name */}
                 </li>
               )}
               ChipProps={{

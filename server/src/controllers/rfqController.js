@@ -3,6 +3,8 @@ import fetchReportCriteria from "../components/FetchReportCriteria.js";
 import fetchCustomAPIData from "../components/FetchCustomAPI.js";
 import getAccessToken from "../accessToken/checkAuthExpiration.js";
 
+import submitRFQData from "../components/addReocrdAPI.js";
+
 import { AppNames } from "../../../client/src/components/zohoAssets/AppLists.js";
 import { ReportNameLists } from "../../../client/src/components/zohoAssets/ReportLists.js";
 
@@ -128,22 +130,63 @@ export const fetchAddRfqs = async (req, res) => {
 
 export const addRfqRecords = async (req, res) => {
   try {
-    // Process incoming data
+    // Access uploaded files
+    const drawingFile = req.files['drawingFile'] ? req.files['drawingFile'][0] : null;
+    const partnerQuoteFile = req.files['partnerQuoteFile'] ? req.files['partnerQuoteFile'][0] : null;
+
+    // Access additional form fields from req.body
+    const {
+      RFQ_Reference_No,
+      RFQ_Status,
+      RFQ_Start_Date,
+      RFQ_End_Date,
+      Target_Price,
+      Total_Order_Value,
+      Allocate_to_partner,
+      Lead_Time_in_Days,
+      Total_Cost
+    } = req.body;
+
+    // Get access token
+    const access_token = await getAccessToken();
+
+    // Prepare the data for submission
     const data = {
-      fields: req.body, // All form fields
-      files: req.files,  // The uploaded files
+      RFQ_Reference_No,
+      RFQ_Status,
+      RFQ_Start_Date,
+      RFQ_End_Date,
+      Target_Price,
+      Total_Order_Value,
+      Allocate_to_partner,
+      Lead_Time_in_Days,
+      Total_Cost
     };
 
-    console.log("Received data:", data); // Log the data for debugging
+    // Submit RFQ data
+    const responseData = await submitRFQData(access_token, data);
 
-    // Here you can implement your logic to save the RFQ records to your database
-    
-    res.json({ message: 'RFQ records added successfully!', data });
+    // Log uploaded files (if any)
+    if (drawingFile) {
+      console.log('Drawing File:', drawingFile);
+    }
+
+    if (partnerQuoteFile) {
+      console.log('Partner Quote File:', partnerQuoteFile);
+    }
+
+    // Log the form fields
+    console.log('Form Fields:', req.body);
+
+    // Return a successful response
+    res.json({ message: "RFQ record added successfully", drawingFile, partnerQuoteFile, data: responseData });
   } catch (error) {
-    console.error("Error adding RFQs:", error); // Log any errors
-    res.status(500).json({ message: "Error fetching add RFQs" });
+    console.error('Error adding RFQ record:', error);
+    res.status(500).json({ message: "Error adding RFQ record", error: error.message });
   }
 };
+
+
 
 /** Partner RFQ Response **/
 export const fetchPartnerRfqResponse = async (req, res) => {
