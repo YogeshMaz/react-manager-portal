@@ -27,6 +27,8 @@ import AssestUtilisation from './pages/assets/AssestUtilisation';
 /** Visits */
 import AddVisits from './pages/visits/AddVisits';
 import ViewVisits from './pages/visits/ViewVisits';
+// Login
+import Login_page from './pages/login/Login_page'
 /** ChatBot */
 // import Chatbot from './components/chatbot/SalesIQ';
 
@@ -91,6 +93,8 @@ function App() {
             {/* Visits */}
             <Route path="/add-visits" element={<AddVisits />} />
             <Route path="/view-visits" element={<ViewVisits />} />
+            {/* Login */}
+            <Route path="/Login_page" element={<Login_page />} />
           </Routes>
         </div>
         {/* <div>

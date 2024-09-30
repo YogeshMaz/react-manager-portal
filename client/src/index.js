@@ -5,6 +5,11 @@ import "./index.css";
 import { BrowserRouter } from "react-router-dom";
 import ThemeProviderComponent from "./components/ThemeContext";
 
+const link = document.createElement('link');
+link.href = "https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded";
+link.rel = "stylesheet";
+document.head.appendChild(link);
+
 // Get the root element from the DOM
 const container = document.getElementById("root");
 const root = createRoot(container); 
