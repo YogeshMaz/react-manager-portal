@@ -1,6 +1,5 @@
-// src/App.js
-import React from 'react';
-import { Routes, Route, BrowserRouter } from 'react-router-dom';
+import React, { createContext, useEffect, useState } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom'; // Added useLocation
 import '../src/App.css';
 import Sidebar from './components/Sidebar';
 import Header from './components/header';
@@ -12,7 +11,6 @@ import PartnerRFQs from './pages/rfq_management/PartnerRfqResponse';
 import ProjectDashboard from './pages/project_management/ProjectDashboard';
 import UpcomingDeliveries from './pages/project_management/UpcomingDeliveries';
 import QualityCheck from './pages/project_management/QualityCheck';
-import ProjectDetailPrint from './pages/project_management/project_dashboard/project_indetailed/ProjectInformation';
 /** Purchase */
 import VendorPos from './pages/purchase/VendorPos';
 import VendorInvoices from './pages/purchase/VendorInvoices';
@@ -27,49 +25,56 @@ import AssestUtilisation from './pages/assets/AssestUtilisation';
 /** Visits */
 import AddVisits from './pages/visits/AddVisits';
 import ViewVisits from './pages/visits/ViewVisits';
-// Login
-import Login_page from './pages/login/Login_page'
-/** ChatBot */
-// import Chatbot from './components/chatbot/SalesIQ';
-
-// import { AppBar, Toolbar, Typography, Box, IconButton } from '@mui/material';
-// import { Brightness4, Brightness7 } from '@mui/icons-material';
+/*Login*/
+import Login from './pages/login/Login_page';
+import DashboardBox from '../src/pages/Dashboard/Dashboard';
 import { useTheme } from './components/ThemeContext'; // Import the useTheme hook
-// import Logo from './components/Logo';
-// import UserInfo from './components/hooks/fetchApiDetails';
-import DashboardBox from '../src/pages/Dashboard/Dashboard'
+
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "../node_modules/bootstrap/dist/js/bootstrap";
-import { createContext, useEffect } from 'react';
-import { useState } from 'react';
+import Login_page from './pages/login/Login_page';
 
 const MyContext = createContext();
 
 function App() {
   const { toggleTheme, theme } = useTheme(); // Get the toggleTheme function and theme
-
   const [isToggleSidebar, setIsToggleSidebar] = useState(false);
   const values = {
     isToggleSidebar,
-    setIsToggleSidebar
-  }
+    setIsToggleSidebar,
+  };
 
-  useEffect(()=>{
-    // alert(isToggleSidebar)
-  },[isToggleSidebar])
+  const location = useLocation(); // Get the current route
+  // Determine if we are on the login page
+  const isLoginPage = location.pathname === "/Login";
+
+  useEffect(() => {
+    // Add or remove class based on isLoginPage
+    if (isLoginPage) {
+      document.body.classList.add("bgColor");
+    } else {
+      document.body.classList.remove("bgColor");
+    }
+    
+    // Cleanup function to remove class if component unmounts
+    return () => {
+      document.body.classList.remove("bgColor");
+    };
+  }, [isLoginPage]); // Re-run this effect whenever isLoginPage changes
 
 
   return (
-    <>
     <MyContext.Provider value={values}>
-      <Header/>
-      <div className='main d-flex'>
-        <div className={`sidebarWrapper ${isToggleSidebar === true ? 'toggle' : ''}`}>
-          <Sidebar/>
-        </div>
-        <div className={`content ${isToggleSidebar === true ? 'toggle' : ''}`}>
+      {!isLoginPage && <Header />}
+      <div className={isLoginPage ? "mainLogin" : "main d-flex"}>
+        {!isLoginPage && (
+          <div className={`sidebarWrapper ${isToggleSidebar ? 'toggle' : ''}`}>
+            <Sidebar />
+          </div>
+        )}
+        <div className={isLoginPage ? "contentLogin" : `content ${isToggleSidebar ? 'toggle' : ''}`}>
           <Routes>
-            <Route index element={<DashboardBox />} /> 
+            <Route index element={<DashboardBox />} />
             {/* RFQ Management */}
             <Route path="/customer-rfqs" element={<CustomerRfqs />} />
             <Route path="/rfq-dashboard" element={<RfqDashboard />} />
@@ -78,7 +83,6 @@ function App() {
             <Route path="/project-dashboard" element={<ProjectDashboard />} />
             <Route path="/upcoming-deliveries" element={<UpcomingDeliveries />} />
             <Route path="/quality-check" element={<QualityCheck />} />
-            <Route path="/project-information" element={<ProjectDetailPrint />} />
             {/* Purchase */}
             <Route path="/vendor-pos" element={<VendorPos />} />
             <Route path="/vendor-invoices" element={<VendorInvoices />} />
@@ -94,32 +98,13 @@ function App() {
             <Route path="/add-visits" element={<AddVisits />} />
             <Route path="/view-visits" element={<ViewVisits />} />
             {/* Login */}
-            <Route path="/Login_page" element={<Login_page />} />
+            <Route path="/Login" element={<Login_page />} />
           </Routes>
         </div>
-        {/* <div>
-          <Chatbot />
-        </div> */}
       </div>
     </MyContext.Provider>
-
-      {/* <Box
-        component="main"
-        sx={{ flexGrow: 1, p: 1, marginTop: 6, width: 100 }}
-      >
-        <Routes>
-          <Route path="/" element={<Typography paragraph>Welcome to the Manager Portal! <DashboardBox /> </Typography>} />
-          <Route path="/customer-rfqs" element={<CustomerRfqs />} />
-          <Route path="/rfq-dashboard" element={<RfqDashboard />} />
-          <Route path="/partner-rfq-response" element={<PartnerRFQs />} />
-          <Route path="/project-dashboard" element={<ProjectDashboard />} />
-          {/* Add more routes as needed 
-        </Routes>
-      </Box> */}
-  </>
   );
 }
 
 export default App;
-export {MyContext}
-
+export { MyContext };
