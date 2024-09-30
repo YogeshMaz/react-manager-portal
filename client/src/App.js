@@ -29,13 +29,10 @@ import ViewVisits from './pages/visits/ViewVisits';
 import Login from './pages/login/Login_page';
 import DashboardBox from '../src/pages/Dashboard/Dashboard';
 import { useTheme } from './components/ThemeContext'; // Import the useTheme hook
-
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "../node_modules/bootstrap/dist/js/bootstrap";
 import Login_page from './pages/login/Login_page';
-
 const MyContext = createContext();
-
 function App() {
   const { toggleTheme, theme } = useTheme(); // Get the toggleTheme function and theme
   const [isToggleSidebar, setIsToggleSidebar] = useState(false);
@@ -43,11 +40,9 @@ function App() {
     isToggleSidebar,
     setIsToggleSidebar,
   };
-
   const location = useLocation(); // Get the current route
   // Determine if we are on the login page
-  const isLoginPage = location.pathname === "/Login"; 
-
+  const isLoginPage = location.pathname === "/login";
   useEffect(() => {
     // Add or remove class based on isLoginPage
     if (isLoginPage) {
@@ -61,8 +56,6 @@ function App() {
       document.body.classList.remove("bgColor");
     };
   }, [isLoginPage]); // Re-run this effect whenever isLoginPage changes
-
-
   return (
     <MyContext.Provider value={values}>
       {!isLoginPage && <Header />}
@@ -98,13 +91,12 @@ function App() {
             <Route path="/add-visits" element={<AddVisits />} />
             <Route path="/view-visits" element={<ViewVisits />} />
             {/* Login */}
-            <Route path="/Login" element={<Login_page />} />
+            <Route path="/login" element={<Login_page />} />
           </Routes>
         </div>
       </div>
     </MyContext.Provider>
   );
 }
-
 export default App;
 export { MyContext };
