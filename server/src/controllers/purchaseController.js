@@ -1,9 +1,8 @@
 import fetchReportCriteria from "../components/FetchReportCriteria.js";
 import getAccessToken from "../accessToken/checkAuthExpiration.js";
 const pmEmail = process.env.PM_EMAIL;
-
-import { AppNames } from "../../../client/src/components/zohoAssets/AppLists.js";
-import { ReportNameLists } from "../../../client/src/components/zohoAssets/ReportLists.js";
+import {AppNames} from "../zohoAssets/AppLists.js";
+import {ReportNameLists} from "../zohoAssets/ReportLists.js";
 
 /** Vendor POs **/
 export const fetchVendorPOs = async (req, res) => {

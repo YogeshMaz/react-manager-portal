@@ -4,9 +4,8 @@ import fetchCustomAPIData from "../components/FetchCustomAPI.js";
 import getAccessToken from "../accessToken/checkAuthExpiration.js";
 
 import submitRFQData from "../components/addReocrdAPI.js";
-
-import { AppNames } from "../../../client/src/components/zohoAssets/AppLists.js";
-import { ReportNameLists } from "../../../client/src/components/zohoAssets/ReportLists.js";
+import {AppNames} from "../zohoAssets/AppLists.js";
+import {ReportNameLists} from "../zohoAssets/ReportLists.js";
 
 const pmEmail = process.env.PM_EMAIL;
 
