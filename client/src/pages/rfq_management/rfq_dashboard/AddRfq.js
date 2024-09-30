@@ -105,7 +105,7 @@ const AddProject = () => {
       leadTime: Yup.number(),
       totalCost: Yup.number(),
     }),
-    onSubmit: async (values) => {
+    onSubmit: async (values, { resetForm }) => {
       const formData = new FormData();
 
       for (const key in values) {
@@ -137,8 +137,17 @@ const AddProject = () => {
 
         const result = await response.json();
         console.log("Form submitted successfully:", result);
+
+        // Show success alert
+        alert("Your form has been submitted successfully!");
+
+        // Reset the form fields
+        resetForm();
       } catch (error) {
         console.error("Error submitting form:", error);
+
+        // Show error alert
+        alert(`Error submitting form: ${error.message}`);
       }
     },
   });
@@ -466,7 +475,7 @@ const AddProject = () => {
               )}
             </label>
           </Grid>
-          
+
           {/* Submit Button */}
           <Grid item xs={12}>
             <Button type="submit" variant="contained" color="primary">
