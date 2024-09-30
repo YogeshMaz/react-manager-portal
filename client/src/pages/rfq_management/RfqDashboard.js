@@ -41,13 +41,13 @@ const RfqDashboard = () => {
       <Typography variant='h5' className='headTxt'>RFQ Dashboard</Typography>
 
       <div className='row'>
-        <Widgets color={["rgb(0 130 217)","#0070bb"]} icon={<TbReceiptRupee />} 
+        <Widgets span={true} color={["rgb(0 130 217)","#0070bb"]} icon={<TbReceiptRupee />} 
           title={['Open RFQs']} value={data?.rfq_summary_details?.open_rfqs_total.toLocaleString()} count={data?.rfq_summary_details?.open_rfqs} /> 
-        <Widgets color={["rgb(0 130 217)","#0070bb"]} icon={<TbReceiptRupee />} 
+        <Widgets span={true} color={["rgb(0 130 217)","#0070bb"]} icon={<TbReceiptRupee />} 
           title={['Post Evaluation RFQs']} value={data?.rfq_summary_details?.post_rfqs_total.toLocaleString()} count={data?.rfq_summary_details?.post_rfqs} />
-        <Widgets color={["rgb(0 130 217)","#0070bb"]} icon={<TbReceiptRupee />} 
+        <Widgets span={true} color={["rgb(0 130 217)","#0070bb"]} icon={<TbReceiptRupee />} 
           title={['On Hold RFQs']} value={data?.rfq_summary_details?.onhold_rfqs_total.toLocaleString()} count={data?.rfq_summary_details?.onhold_rfqs} />
-        <Widgets color={["rgb(0 130 217)","#0070bb"]} icon={<TbReceiptRupee />} 
+        <Widgets span={true} color={["rgb(0 130 217)","#0070bb"]} icon={<TbReceiptRupee />} 
           title={['Cancelled RFQs']} value={data?.rfq_summary_details?.closed_rfqs_total.toLocaleString()} count={data?.rfq_summary_details?.closed_rfqs} />
       </div>
 

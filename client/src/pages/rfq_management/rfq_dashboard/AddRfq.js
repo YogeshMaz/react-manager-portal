@@ -5,15 +5,11 @@ import {
   Box,
   Button,
   TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Checkbox,
-  ListItemText,
   Typography,
   Grid,
+  IconButton,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
@@ -23,11 +19,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 
 const AddProject = () => {
-  const { data, error, noData } = useFetchCustomDataV1(
-    APILinkRoutes.AddRfqsRoute
-  );
-  console.log("render", data);
-  // Safely destructure data using memoization to prevent re-renders
+  const { data } = useFetchCustomDataV1(APILinkRoutes.AddRfqsRoute);
   const projectNumbers = React.useMemo(
     () => data?.project_nos?.all_project_nos || [],
     [data]
@@ -55,6 +47,26 @@ const AddProject = () => {
   const [drawingFileName, setDrawingFileName] = useState("");
   const [partnerQuoteFileName, setPartnerQuoteFileName] = useState("");
 
+  // Handle file change for both inputs
+  const handleFileChange = (event, fileType) => {
+    const file = event.target.files[0];
+    if (fileType === "drawingFile" && file) {
+      setDrawingFileName(file.name); // Set file name for drawing file
+    } else if (fileType === "partnerQuoteFile" && file) {
+      setPartnerQuoteFileName(file.name); // Set file name for partner quote file
+    }
+  };
+
+  // Handle clear file for both inputs
+  const handleClearFile = (inputId) => {
+    if (inputId === "drawingFile") {
+      setDrawingFileName(""); // Clear drawing file name
+    } else if (inputId === "partnerQuoteFile") {
+      setPartnerQuoteFileName(""); // Clear partner quote file name
+    }
+    document.getElementById(inputId).value = ""; // Clear the file input
+  };
+
   const formik = useFormik({
     initialValues: {
       projectNumber: "",
@@ -62,11 +74,12 @@ const AddProject = () => {
       referenceNo: "",
       partDescription: "",
       targetPrice: "",
+      rfqStatus: "",
       rfqStartDate: dayjs(),
       rfqEndDate: null,
       totalOrderValue: "",
+      partnerCategory: "",
       allocateToPartner: [],
-      bestQuotePartner: "",
       vendorPrice: "",
       leadTime: "",
       totalCost: "",
@@ -79,7 +92,6 @@ const AddProject = () => {
       projectNumber: Yup.string().required("Project Number is required."),
       customer: Yup.string().required("Customer is required."),
       referenceNo: Yup.string().required("Reference No is required."),
-      partDescription: Yup.string(),
       rfqStartDate: Yup.date()
         .nullable()
         .required("RFQ Start Date is required."),
@@ -89,7 +101,6 @@ const AddProject = () => {
         .min(Yup.ref("rfqStartDate"), "End date must be after start date."),
       targetPrice: Yup.number(),
       totalOrderValue: Yup.number(),
-      bestQuotePartner: Yup.string(),
       vendorPrice: Yup.number(),
       leadTime: Yup.number(),
       totalCost: Yup.number(),
@@ -97,25 +108,17 @@ const AddProject = () => {
     onSubmit: async (values) => {
       const formData = new FormData();
 
-      // Iterate over the form fields
       for (const key in values) {
         if (values[key] instanceof File) {
-          // If it's a file, append it to the formData
           formData.append(key, values[key]);
         } else if (key === "allocateToPartner") {
-          // Convert allocateToPartner array to JSON string
           const partnerNames = values.allocateToPartner.map(
             (partner) => partner.name_of_organisation
           );
-          formData.append(key, JSON.stringify(partnerNames)); // Append the serialized array
+          formData.append(key, JSON.stringify(partnerNames));
         } else {
-          formData.append(key, values[key]); // Append other fields
+          formData.append(key, values[key]);
         }
-      }
-
-      console.log("Form Data Contents:");
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
       }
 
       try {
@@ -128,26 +131,28 @@ const AddProject = () => {
         );
 
         if (!response.ok) {
-          throw new Error("Failed to submit data");
+          const errorResponse = await response.text();
+          throw new Error(`Failed to submit data: ${errorResponse}`);
         }
 
-        console.log("Form submitted successfully", await response.json());
+        const result = await response.json();
+        console.log("Form submitted successfully:", result);
       } catch (error) {
         console.error("Error submitting form:", error);
       }
     },
   });
 
-  const handleFileChange = (event, fileType) => {
-    const file = event.target.files[0];
-    if (file) {
-      formik.setFieldValue(fileType, file);
-      if (fileType === "drawingFile") {
-        setDrawingFileName(file.name);
-      } else if (fileType === "partnerQuoteFile") {
-        setPartnerQuoteFileName(file.name);
+  const uniqueOptions = (options) => {
+    const seen = new Set();
+    return options.filter((option) => {
+      const id = option.look_up_id;
+      if (seen.has(id)) {
+        return false;
       }
-    }
+      seen.add(id);
+      return true;
+    });
   };
 
   return (
@@ -157,23 +162,31 @@ const AddProject = () => {
           {/* Project Number Autocomplete */}
           <Grid item xs={12} sm={4}>
             <Autocomplete
-              options={projectNumbers} // Pass the array of project objects
-              getOptionLabel={(option) => option.project_number || ""} // Display project_number in the dropdown
+              options={projectNumbers}
+              getOptionLabel={(option) => option.pn?.project_number || ""}
               value={
                 projectNumbers.find(
-                  (item) => item.look_up_id === formik.values.projectLookUpId // Find the selected item based on look_up_id
+                  (item) => item.pn.look_up_id === formik.values.projectLookUpId
                 ) || null
               }
               onChange={(event, newValue) => {
-                formik.setFieldValue(
-                  "projectNumber",
-                  newValue?.project_number || "" // Set project_number in Formik state
-                );
-                formik.setFieldValue(
-                  "projectLookUpId",
-                  newValue?.look_up_id || "" // Use look_up_id in Formik state
-                );
+                if (newValue) {
+                  formik.setFieldValue(
+                    "projectNumber",
+                    newValue.pn.project_number
+                  );
+                  formik.setFieldValue(
+                    "projectLookUpId",
+                    newValue.pn.look_up_id
+                  );
+                } else {
+                  formik.setFieldValue("projectNumber", "");
+                  formik.setFieldValue("projectLookUpId", "");
+                }
               }}
+              isOptionEqualToValue={(option, value) =>
+                option.pn?.look_up_id === value.look_up_id
+              }
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -192,7 +205,7 @@ const AddProject = () => {
               getOptionLabel={(option) => option.customer_organisation || ""}
               value={
                 customerLists.find(
-                  (item) => item.look_up_id === formik.values.customerLookUpId // Use a unique look_up_id for customers
+                  (item) => item.look_up_id === formik.values.customerLookUpId
                 ) || null
               }
               onChange={(event, newValue) => {
@@ -203,7 +216,7 @@ const AddProject = () => {
                 formik.setFieldValue(
                   "customerLookUpId",
                   newValue?.look_up_id || ""
-                ); // Use a distinct field for customer look_up_id
+                );
               }}
               renderInput={(params) => (
                 <TextField
@@ -229,11 +242,11 @@ const AddProject = () => {
             />
           </Grid>
 
-          {/* RFQ status Autocomplete */}
+          {/* RFQ Status Autocomplete */}
           <Grid item xs={12} sm={4}>
             <Autocomplete
               options={rfqStatus}
-              value={formik.values.rfqStatus}
+              value={formik.values.rfqStatus || null}
               onChange={(event, newValue) => {
                 formik.setFieldValue("rfqStatus", newValue);
               }}
@@ -274,7 +287,7 @@ const AddProject = () => {
               onChange={(date) => formik.setFieldValue("rfqEndDate", date)}
               minDate={
                 formik.values.rfqStartDate
-                  ? dayjs(formik.values.rfqStartDate).add(0, "day")
+                  ? dayjs(formik.values.rfqStartDate).add(1, "day")
                   : null
               }
               renderInput={(params) => (
@@ -296,8 +309,6 @@ const AddProject = () => {
               value={formik.values.partDescription}
               onChange={formik.handleChange}
               fullWidth
-              error={Boolean(formik.errors.partDescription)}
-              helperText={formik.errors.partDescription}
             />
           </Grid>
 
@@ -305,13 +316,11 @@ const AddProject = () => {
           <Grid item xs={12} sm={4}>
             <TextField
               label="Target Price"
-              type="number"
               name="targetPrice"
+              type="number"
               value={formik.values.targetPrice}
               onChange={formik.handleChange}
               fullWidth
-              error={Boolean(formik.errors.targetPrice)}
-              helperText={formik.errors.targetPrice}
             />
           </Grid>
 
@@ -319,13 +328,11 @@ const AddProject = () => {
           <Grid item xs={12} sm={4}>
             <TextField
               label="Total Order Value"
-              type="number"
               name="totalOrderValue"
+              type="number"
               value={formik.values.totalOrderValue}
               onChange={formik.handleChange}
               fullWidth
-              error={Boolean(formik.errors.totalOrderValue)}
-              helperText={formik.errors.totalOrderValue}
             />
           </Grid>
 
@@ -333,11 +340,9 @@ const AddProject = () => {
           <Grid item xs={12} sm={4}>
             <Autocomplete
               options={partnerCategory}
-              value={formik.values.partnerCategory}
+              value={formik.values.partnerCategory || null}
               onChange={(event, newValue) => {
                 formik.setFieldValue("partnerCategory", newValue);
-                // Reset allocateToPartner when category changes
-                formik.setFieldValue("allocateToPartner", []); // Clear previous selections
               }}
               renderInput={(params) => (
                 <TextField
@@ -350,161 +355,118 @@ const AddProject = () => {
             />
           </Grid>
 
-          {/* Allocate to Partner Multi-Select */}
+          {/* Allocate To Partner */}
           <Grid item xs={12} sm={8}>
             <Autocomplete
               multiple
-              options={
-                formik.values.partnerCategory === "Manufacturing"
-                  ? pcndaList
-                  : formik.values.partnerCategory === "EMS"
-                  ? emsList
-                  : formik.values.partnerCategory === "Fabrication"
-                  ? fabList
-                  : []
-              }
-              getOptionLabel={(option) => option.name_of_organisation || ""} // Display organization name
-              value={formik.values.allocateToPartner} // Formik state should be an array
+              options={[...pcndaList, ...emsList, ...fabList]}
+              getOptionLabel={(option) => option.name_of_organisation || ""}
               onChange={(event, newValue) => {
-                // Set the selected values in Formik
                 formik.setFieldValue("allocateToPartner", newValue);
               }}
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label="Allocate to Partner"
-                  placeholder="Select Partners"
+                  label="Allocate To Partner"
                   error={Boolean(formik.errors.allocateToPartner)}
                   helperText={formik.errors.allocateToPartner}
                 />
               )}
-              renderOption={(props, option) => (
-                <li {...props} style={{ padding: "8px", cursor: "pointer" }}>
-                  {option.name_of_organisation}{" "}
-                  {/* Display the organization name */}
-                </li>
-              )}
-              ChipProps={{
-                color: "secondary",
-                style: { backgroundColor: "#0082d9", color: "white" },
-              }}
-            />
-          </Grid>
-
-          {/* Best Quote Partner Multi-Select */}
-          {/* <Grid item xs={12} sm={4}>
-            <Autocomplete
-              multiple
-              options={formik.values.allocateToPartner || []} // Use the selected partners from Allocate to Partner
-              value={formik.values.bestQuotePartner || []} // Ensure this is also an array
-              onChange={(event, newValue) => {
-                // Log selected values for debugging
-                console.log(
-                  "Selected Values for Best Quote Partner: ",
-                  newValue
-                ); // Debugging line
-                // Set the selected values in Formik, ensuring they are plain strings
-                formik.setFieldValue(
-                  "bestQuotePartner",
-                  newValue.map((item) => item.trim())
-                ); // Trim any unwanted spaces
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Best Quote Partner"
-                  placeholder="Select Partners"
-                  error={Boolean(formik.errors.bestQuotePartner)}
-                  helperText={formik.errors.bestQuotePartner}
-                />
-              )}
-              getOptionLabel={(option) => option} // Ensure it uses the plain string
-              renderOption={(props, option) => (
-                <li {...props} style={{ padding: "8px", cursor: "pointer" }}>
-                  {option}
-                </li>
-              )}
-              ChipProps={{
-                color: "secondary",
-                style: { backgroundColor: "#0082d9", color: "white" },
-              }}
-            />
-          </Grid> */}
-
-          {/* Lead Time */}
-          <Grid item xs={12} sm={4}>
-            <TextField
-              label="Lead Time (days)"
-              type="number"
-              name="leadTime"
-              value={formik.values.leadTime}
-              onChange={formik.handleChange}
-              fullWidth
-              error={Boolean(formik.errors.leadTime)}
-              helperText={formik.errors.leadTime}
-            />
-          </Grid>
-
-          {/* Total Cost */}
-          <Grid item xs={12} sm={4}>
-            <TextField
-              label="Total Cost"
-              type="number"
-              name="totalCost"
-              value={formik.values.totalCost}
-              onChange={formik.handleChange}
-              fullWidth
-              error={Boolean(formik.errors.totalCost)}
-              helperText={formik.errors.totalCost}
             />
           </Grid>
 
           {/* Vendor Price */}
-          <Grid item xs={12} sm={4}>
+          {/* <Grid item xs={12} sm={4}>
             <TextField
               label="Vendor Price"
-              type="number"
               name="vendorPrice"
+              type="number"
               value={formik.values.vendorPrice}
               onChange={formik.handleChange}
               fullWidth
-              error={Boolean(formik.errors.vendorPrice)}
-              helperText={formik.errors.vendorPrice}
+            />
+          </Grid> */}
+
+          {/* Lead Time */}
+          <Grid item xs={12} sm={6}>
+            <TextField
+              label="Lead Time"
+              name="leadTime"
+              type="number"
+              value={formik.values.leadTime}
+              onChange={formik.handleChange}
+              fullWidth
             />
           </Grid>
 
-          {/* Drawing Upload */}
+          {/* Total Cost */}
           <Grid item xs={12} sm={6}>
-            <Button variant="contained" component="label">
-              Upload Drawing
-              <input
-                type="file"
-                hidden
-                onChange={(event) => handleFileChange(event, "drawingFile")}
-              />
-            </Button>
-            {drawingFileName && (
-              <Typography variant="body2">{drawingFileName}</Typography>
-            )}
+            <TextField
+              label="Total Cost"
+              name="totalCost"
+              type="number"
+              value={formik.values.totalCost}
+              onChange={formik.handleChange}
+              fullWidth
+            />
           </Grid>
 
-          {/* Partner Quote Upload */}
-          <Grid item xs={12} sm={6}>
-            <Button variant="contained" component="label">
-              Upload Partner Quote
-              <input
-                type="file"
-                hidden
-                onChange={(event) =>
-                  handleFileChange(event, "partnerQuoteFile")
-                }
-              />
-            </Button>
-            {partnerQuoteFileName && (
-              <Typography variant="body2">{partnerQuoteFileName}</Typography>
-            )}
+          {/* Drawing File Upload */}
+          <Grid item xs={6}>
+            <input
+              accept="application/pdf"
+              type="file"
+              id="drawingFile"
+              onChange={(event) => handleFileChange(event, "drawingFile")}
+              style={{ display: "none" }}
+            />
+            <label htmlFor="drawingFile">
+              <Button variant="contained" component="span">
+                Upload Drawing File
+              </Button>
+              {drawingFileName && (
+                <span style={{ marginLeft: 10 }}>
+                  {drawingFileName}
+                  <IconButton
+                    aria-label="clear file"
+                    size="small"
+                    onClick={() => handleClearFile("drawingFile")}
+                  >
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                </span>
+              )}
+            </label>
           </Grid>
 
+          {/* Partner Quote File Upload */}
+          <Grid item xs={6}>
+            <input
+              accept="application/pdf"
+              type="file"
+              id="partnerQuoteFile"
+              onChange={(event) => handleFileChange(event, "partnerQuoteFile")}
+              style={{ display: "none" }}
+            />
+            <label htmlFor="partnerQuoteFile">
+              <Button variant="contained" component="span">
+                Upload Partner Quote File
+              </Button>
+              {partnerQuoteFileName && (
+                <span style={{ marginLeft: 10 }}>
+                  {partnerQuoteFileName}
+                  <IconButton
+                    aria-label="clear file"
+                    size="small"
+                    onClick={() => handleClearFile("partnerQuoteFile")}
+                  >
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                </span>
+              )}
+            </label>
+          </Grid>
+          
           {/* Submit Button */}
           <Grid item xs={12}>
             <Button type="submit" variant="contained" color="primary">
@@ -518,338 +480,3 @@ const AddProject = () => {
 };
 
 export default AddProject;
-
-// import React from "react";
-// import TextField from '@mui/material/TextField';
-// import Autocomplete from '@mui/material/Autocomplete';
-// import Stack from '@mui/material/Stack';
-// import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-// import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-// import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-// import { useState } from "react";
-// import { Button, Divider } from "@mui/material";
-// import Card from '@mui/material/Card';
-// import CardContent from '@mui/material/CardContent';
-
-// /** Server side fetch */
-// import useFetchReportData from "../../../components/hooks/fetchReportData";
-// import { APILinkRoutes } from "../../../components/apiLinks/APILinkRoutes";
-
-// export default function AddRfq() {
-
-// const { data, error, noData } = useFetchReportData(APILinkRoutes.AddRfqsRoute);
-// console.log("rfq add ", data)
-
-//   const [file, setFile] = useState(null);
-//   const  [file1, setFile1] = useState(null);
-
-//   const handleFileChange = (event) => {
-//       const selectedFile = event.target.files[0];
-//       setFile(selectedFile);
-
-//       // Automatically handle file upload logic here
-//       if (selectedFile) {
-//           console.log('Uploading:', selectedFile);
-//           // Add your upload logic here (e.g., using FormData or an API call)
-//       }
-//   };
-
-//   const handleFileChange1 = (event) => {
-//     const selectedFile1 = event.target.files[0];
-//     setFile1(selectedFile1);
-
-//     // Automatically handle file upload logic here
-//     if (selectedFile1) {
-//         console.log('Uploading:', selectedFile1);
-//         // Add your upload logic here (e.g., using FormData or an API call)
-//     }
-// };
-
-//   const [selectedStartDate, setSelectedStartDate] = useState(null);
-//   const [selectedEndDate, setSelectedEndDate] = useState(null);
-
-//   const handleStartDateChange = (date) => {
-//     setSelectedStartDate(date);
-//     // Reset end date if the new start date is after the current end date
-//     if (selectedEndDate && date > selectedEndDate) {
-//       setSelectedEndDate(null);
-//     }
-//   };
-
-//   const handleEndDateChange = (date) => {
-//     setSelectedEndDate(date);
-//     // Reset start date if the new end date is before the current start date
-//     if (selectedStartDate && date < selectedStartDate) {
-//       setSelectedStartDate(null);
-//     } else if (!selectedStartDate) {
-//       // Automatically set the start date if it hasn't been selected yet
-//       setSelectedStartDate(date);
-//     }
-//   };
-
-//   const proNoProps = {
-//     options: data,
-//     getOptionLabel: (option) => option.title,
-//   };
-//   const customerProps = {
-//       options: customer,
-//       getOptionLabel: (option) => option.title,
-//   };
-//   const rfqStatusProps = {
-//       options: rfqStatus,
-//       getOptionLabel: (option) => option.title,
-//   };
-//   const pcaProps = {
-//       options: pcaPartner,
-//       getOptionLabel: (option) => option.title,
-//   };
-
-// return(
-//     <>
-//     <Card variant="outlined">
-//       <CardContent>
-//         <div className="row">
-//             <h5>Add RFQ</h5>
-//             <hr/>
-//             <div className='col-md-4 mt-3'>
-//                 <Stack spacing={1} >
-//                     <Autocomplete
-//                     {...proNoProps}
-//                     id=""
-//                     renderInput={(params) => (
-//                     <TextField {...params} label="Project Number" className='w-100'
-//                     id="outlined-size-small"
-
-//                     size="small"/>
-//                     )}
-//                     />
-//                 </Stack>
-//             </div>
-//             <div className='col-md-4 mt-3'>
-//                 <Stack spacing={1} >
-//                     <Autocomplete
-//                     {...customerProps}
-//                     id=""
-//                     renderInput={(params) => (
-//                     <TextField {...params} label="Customer"
-//                     id="outlined-size-small"
-
-//                     size="small" className='w-100'/>
-//                     )}
-//                     />
-//                 </Stack>
-//             </div>
-//             <div className="col-md-4 mt-3">
-//                 <TextField label="RFQ Referance No" className='w-100'
-//                  id="outlined-size-small"
-//                  size="small"/>
-//             </div>
-//             <div className='col-md-4 mt-4'>
-//                 <Stack spacing={1} >
-//                     <Autocomplete
-//                     {...rfqStatusProps}
-//                     id=""
-//                     renderInput={(params) => (
-//                     <TextField {...params} label="RFQ Status" className='w-100'
-//                     id="outlined-size-small"
-
-//                     size="small"/>
-//                     )}
-//                     />
-//                 </Stack>
-//             </div>
-//             <div className="col-md-4 mt-4">
-//               <LocalizationProvider dateAdapter={AdapterDateFns}>
-//                 <DatePicker
-//                   className='w-100'
-//                   label="Start Date"
-//                   value={selectedStartDate}
-//                   onChange={handleStartDateChange}
-//                   format="dd-MM-yyyy" // Custom date format
-//                   renderInput={(params) => <TextField {...params} />}
-//                 />
-//               </LocalizationProvider>
-//             </div>
-//             <div className="col-md-4 mt-4">
-//                 <LocalizationProvider dateAdapter={AdapterDateFns}>
-//                   <DatePicker
-//                     className='w-100'
-//                     label="End Date"
-//                     value={selectedEndDate}
-//                     onChange={handleEndDateChange}
-//                     format="dd-MM-yyyy" // Custom date format
-//                     minDate={selectedStartDate} // Disable dates before the selected start date
-//                     renderInput={(params) => <TextField {...params} />}
-//                   />
-//                 </LocalizationProvider>
-//             </div>
-
-//             <div className="col-md-4 mt-4">
-//                 <TextField label="Total Order Value" className='w-100'
-//                  id="outlined-size-small"
-//                  size="small"/>
-//             </div>
-//             <div className="col-md-4 mt-4">
-//                 <TextField label="Target Price" className='w-100'
-//                  id="outlined-size-small"
-//                  size="small"/>
-//             </div>
-//             <div className="col-md-4 mt-4">
-//                 <TextField label="Total Cost"  id="outlined-size-small"
-//                 size="small"
-//                 className='w-100'/>
-//             </div>
-//             <div className='col-md-4 mt-4'>
-//                 <Stack spacing={1}>
-//                     <Autocomplete
-//                     {...pcaProps}
-//                     id=""
-//                     renderInput={(params) => (
-//                     <TextField {...params} label="Allocate to PC&A Partner" className='w-100'
-//                     id="outlined-size-small"
-//                     size="small"/>
-//                     )}
-//                     />
-//                 </Stack>
-//             </div>
-//             <div className='col-md-4 mt-4'>
-//                 <Stack spacing={1} >
-//                     <Autocomplete
-//                     {...pcaProps}
-//                     id=""
-//                     renderInput={(params) => (
-//                     <TextField {...params} label="Allocate to EMS Partner"
-//                     id="outlined-size-small"
-
-//                     size="small" className='w-100'/>
-//                     )}
-//                     />
-//                 </Stack>
-//             </div>
-//             <div className='col-md-4 mt-4'>
-//                 <Stack spacing={1} >
-//                     <Autocomplete
-//                     {...pcaProps}
-//                     id=""
-//                     renderInput={(params) => (
-//                     <TextField {...params} label="Allocate to Fabrication Partner"
-//                     id="outlined-size-small"
-
-//                     size="small" className='w-100'/>
-//                     )}
-//                     />
-//                 </Stack>
-//             </div>
-//             <div className="col-md-4 mt-4">
-//                 <TextField label="Best Quote Partner"
-//                  id="outlined-size-small"
-//                  size="small"className='w-100'/>
-//             </div>
-
-//             <div className="col-md-4 mt-4">
-//                 <TextField label="Lead Time in Days"  id="outlined-size-small"
-//                 size="small"
-//                 className='w-100'/>
-//             </div>
-//             <div className="col-md-4 mt-4">
-//                 <TextField label="Vendor Price/Best Price"  id="outlined-size-small"
-//                 size="small"
-//                 className='w-100'/>
-//             </div>
-
-//             <div className="col-md-4 mt-4 d-flex">
-//               <input
-//                   type="file"
-//                   accept="image/*"  // Accept images only
-//                   onChange={handleFileChange}
-//                   style={{ display: 'none'}} // Hide the native input element
-//                   id="file-input"
-//               />
-//               <TextField
-//                   label={file ? file.name : "Upload Partner Quote"}
-//                   variant="outlined"
-//                   size="small"
-//                   InputProps={{
-//                       readOnly: true,
-//                   }}
-//               />
-//               <label htmlFor="file-input">
-//                   <Button variant="contained" component="span">
-//                       Select File
-//                   </Button>
-//               </label>
-//             </div>
-
-//             <div className="col-md-4 mt-4 d-flex">
-//               <input
-//                   type="file"
-//                   accept="image/*"  // Accept images only
-//                   onChange={handleFileChange1}
-//                   style={{ display: 'none'}} // Hide the native input element
-//                   id="file-input1"
-//               />
-//               <TextField
-//                   label={file1 ? file1.name : "Upload Drawing"}
-//                   variant="outlined"
-//                   size="small"
-//                   InputProps={{
-//                       readOnly: true,
-//                   }}
-//               />
-//               <label htmlFor="file-input1">
-//                   <Button variant="contained" component="span" className="btnbrdr">
-//                       Select File
-//                   </Button>
-//               </label>
-//             </div>
-//             <div className="col-md-4 mt-4">
-//                 <TextField
-//                 label="Part Description"
-//                 placeholder="Part Description"
-//                 multiline
-//                 className='w-100'
-//                 id="outlined-size-small"
-//                 size="small"
-//                 />
-//             </div>
-//             <div className="col-md-12 mt-4">
-//               <button className="btn btn-primary float-end" component="span">
-//                   Submit
-//               </button>
-//             </div>
-//         </div>
-//       </CardContent>
-//       </Card>
-//     </>
-// )
-// }
-
-// // const proNo = [
-// // { title: 'MM00123' },
-// // { title: 'MM00124' },
-// // { title: 'MM00125' },
-// // { title: 'MM00126' },
-// // { title: 'MM00127' },
-// // { title: 'MM00128' },
-// // { title: 'MM00129' }
-// // ];
-
-// const customer = [
-// { title: 'Customer 1' },
-// { title: 'Customer 2' },
-// { title: 'Customer 3' },
-// { title: 'Customer 4' },
-// { title: 'Customer 5' }
-// ];
-
-// const rfqStatus = [
-// { title: 'Bidding' },
-// { title: 'Closed' },
-// { title: 'On Hold' }
-// ];
-
-// const pcaPartner = [
-// { title: 'Partner1' },
-// { title: 'Partner2' },
-// { title: 'Partner3' }
-// ];
