@@ -52,10 +52,13 @@ const AddProject = () => {
     const file = event.target.files[0];
     if (fileType === "drawingFile" && file) {
       setDrawingFileName(file.name); // Set file name for drawing file
+      formik.setFieldValue("drawingFile", file); // Set the file in Formik
     } else if (fileType === "partnerQuoteFile" && file) {
       setPartnerQuoteFileName(file.name); // Set file name for partner quote file
+      formik.setFieldValue("partnerQuoteFile", file); // Set the file in Formik
     }
   };
+  
 
   // Handle clear file for both inputs
   const handleClearFile = (inputId) => {
@@ -93,10 +96,10 @@ const AddProject = () => {
       customer: Yup.string().required("Customer is required."),
       referenceNo: Yup.string().required("Reference No is required."),
       rfqStartDate: Yup.date()
-        .nullable()
+        // .nullable()
         .required("RFQ Start Date is required."),
       rfqEndDate: Yup.date()
-        .nullable()
+        // .nullable()
         .required("RFQ End Date is required.")
         .min(Yup.ref("rfqStartDate"), "End date must be after start date."),
       targetPrice: Yup.number(),
@@ -110,7 +113,7 @@ const AddProject = () => {
 
       for (const key in values) {
         if (values[key] instanceof File) {
-          formData.append(key, values[key]);
+          formData.append(key, values[key]); // Append file
         } else if (key === "allocateToPartner") {
           const partnerNames = values.allocateToPartner.map(
             (partner) => partner.name_of_organisation
@@ -131,8 +134,10 @@ const AddProject = () => {
         );
 
         if (!response.ok) {
-          const errorResponse = await response.text();
-          throw new Error(`Failed to submit data: ${errorResponse}`);
+          const errorResponse = await response.json(); // Change to JSON for better error handling
+          throw new Error(
+            `Failed to submit data: ${JSON.stringify(errorResponse)}`
+          );
         }
 
         const result = await response.json();
@@ -344,14 +349,15 @@ const AddProject = () => {
               fullWidth
             />
           </Grid>
-
           {/* Partner Category Autocomplete */}
           <Grid item xs={12} sm={4}>
             <Autocomplete
               options={partnerCategory}
               value={formik.values.partnerCategory || null}
               onChange={(event, newValue) => {
+                // Set the new partner category and clear the allocateToPartner field
                 formik.setFieldValue("partnerCategory", newValue);
+                formik.setFieldValue("allocateToPartner", []); // Clear the allocate list
               }}
               renderInput={(params) => (
                 <TextField
@@ -368,8 +374,20 @@ const AddProject = () => {
           <Grid item xs={12} sm={8}>
             <Autocomplete
               multiple
-              options={[...pcndaList, ...emsList, ...fabList]}
+              value={formik.values.allocateToPartner || []} // Bind formik value to the Autocomplete
+              options={
+                formik.values.partnerCategory === "Manufacturing"
+                  ? uniqueOptions(pcndaList)
+                  : formik.values.partnerCategory === "EMS"
+                  ? uniqueOptions(emsList)
+                  : formik.values.partnerCategory === "Fabrication"
+                  ? uniqueOptions(fabList)
+                  : []
+              }
               getOptionLabel={(option) => option.name_of_organisation || ""}
+              getOptionSelected={(option, value) =>
+                option.look_up_id === value.look_up_id
+              }
               onChange={(event, newValue) => {
                 formik.setFieldValue("allocateToPartner", newValue);
               }}

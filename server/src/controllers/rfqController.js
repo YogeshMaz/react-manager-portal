@@ -4,8 +4,8 @@ import fetchCustomAPIData from "../components/FetchCustomAPI.js";
 import getAccessToken from "../accessToken/checkAuthExpiration.js";
 
 import submitRFQData from "../components/addReocrdAPI.js";
-import {AppNames} from "../zohoAssets/AppLists.js";
-import {ReportNameLists} from "../zohoAssets/ReportLists.js";
+import { AppNames } from "../zohoAssets/AppLists.js";
+import { ReportNameLists } from "../zohoAssets/ReportLists.js";
 
 const pmEmail = process.env.PM_EMAIL;
 
@@ -163,12 +163,8 @@ export const fetchAddRfqs = async (req, res) => {
 export const addRfqRecords = async (req, res) => {
   try {
     // Access uploaded files
-    const drawingFile = req.files["drawingFile"]
-      ? req.files["drawingFile"][0]
-      : null;
-    const partnerQuoteFile = req.files["partnerQuoteFile"]
-      ? req.files["partnerQuoteFile"][0]
-      : null;
+    const drawingFile = req.files["drawingFile"] ? req.files["drawingFile"][0] : null;
+    const partnerQuoteFile = req.files["partnerQuoteFile"] ? req.files["partnerQuoteFile"][0] : null;
 
     // Access additional form fields from req.body
     const {
@@ -181,6 +177,8 @@ export const addRfqRecords = async (req, res) => {
       rfqStartDate,
       rfqEndDate,
       totalOrderValue,
+      partnerCategory,
+      allocateToPartner,
       totalCost,
       leadTime,
     } = req.body;
@@ -192,8 +190,6 @@ export const addRfqRecords = async (req, res) => {
     const formattedRfqStartDate = formatDate(rfqStartDate);
     const formattedRfqEndDate = formatDate(rfqEndDate);
 
-    console.log("yov", formattedRfqEndDate);
-
     // Prepare the data for submission
     const data = {
       Project_Number1: projectNumber,
@@ -202,11 +198,15 @@ export const addRfqRecords = async (req, res) => {
       Part_Description: partDescription,
       Target_Price: targetPrice,
       RFQ_Status: rfqStatus,
-      // RFQ_Start_Date: formattedRfqStartDate,
-      // RFQ_End_Date: formattedRfqEndDate,
+      RFQ_Start_Date: formattedRfqStartDate,
+      RFQ_End_Date: formattedRfqEndDate,
+      Partner_Category: partnerCategory,
+      Allocate_to_partner: allocateToPartner,
       Total_Order_Value: totalOrderValue,
       Total_Cost: totalCost,
       Lead_Time_in_Days: leadTime,
+      Upload_Partner_Quote: partnerQuoteFile ? partnerQuoteFile.path : null, // Store the path of the uploaded file
+      Upload_Drawing_File: drawingFile ? drawingFile.path : null, // Store the path of the uploaded file
     };
 
     // Submit RFQ data
@@ -214,10 +214,10 @@ export const addRfqRecords = async (req, res) => {
 
     // Log uploaded files (if any)
     if (drawingFile) {
-      console.log("Drawing File:", drawingFile);
+      console.log("Drawing File:", drawingFile.path); // Logging the path of the drawing file
     }
     if (partnerQuoteFile) {
-      console.log("Partner Quote File:", partnerQuoteFile);
+      console.log("Partner Quote File:", partnerQuoteFile.path); // Logging the path of the partner quote file
     }
 
     // Log the form fields
@@ -226,17 +226,16 @@ export const addRfqRecords = async (req, res) => {
     // Return a successful response
     res.json({
       message: "RFQ record added successfully",
-      drawingFile,
-      partnerQuoteFile,
+      drawingFile: drawingFile ? drawingFile.path : null, // Return the path of the drawing file
+      partnerQuoteFile: partnerQuoteFile ? partnerQuoteFile.path : null, // Return the path of the partner quote file
       data: responseData,
     });
   } catch (error) {
     console.error("Error adding RFQ record:", error);
-    res
-      .status(500)
-      .json({ message: "Error adding RFQ record", error: error.message });
+    res.status(500).json({ message: "Error adding RFQ record", error: error.message });
   }
 };
+
 
 /** Partner RFQ Response **/
 export const fetchPartnerRfqResponse = async (req, res) => {
@@ -258,28 +257,29 @@ export const fetchPartnerRfqResponse = async (req, res) => {
   }
 };
 
-function formatDate(dateInput) {
-  const date = new Date(dateInput); // Convert the input to a Date object
-
-  // Define options for date formatting
+function formatDate(dateString) {
   const options = {
     year: "numeric",
     month: "short",
-    day: "2-digit",
+    day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
     hour12: false,
+    timeZone: "GMT",
   };
 
-  // Format the date to a string
+  const date = new Date(dateString);
   const formattedDate = date.toLocaleString("en-GB", options).replace(",", "");
 
-  // Replace the colons with hyphens for time
-  return formattedDate.replace(/:/g, "-");
+  // Reformat the output to desired format
+  return formattedDate
+    .replace(/\//g, "-")
+    .replace(/\s+/g, " ")
+    .replace(/(\d{1,2}) (\w{3}) (\d{4}) (\d{2}:\d{2}:\d{2})/, "$1-$2-$3 $4");
 }
 
 // Example usage
-const specificDate = "2020-01-10T22:12:10";
-const formattedSpecificDate = formatDate(specificDate);
-console.log(formattedSpecificDate); // Outputs: "10-Jan-2020 22-12-10"
+const dateStr = "Tue, 01 Oct 2024 09:35:17 GMT";
+const formatted = formatDate(dateStr);
+console.log(formatted); // "01-Oct-2024 09:35:17"
