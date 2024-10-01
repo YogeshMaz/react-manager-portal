@@ -8,11 +8,11 @@
   font-family: "Montserrat", sans-serif;
 }
 
-body {
+.bodySec {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  min-height: 95vh;
 }
 
 .bgColor{
