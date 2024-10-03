@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useState } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom'; // Added useLocation
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import '../src/App.css';
 import Sidebar from './components/Sidebar';
 import Header from './components/header';
@@ -25,37 +25,48 @@ import AssestUtilisation from './pages/assets/AssestUtilisation';
 /** Visits */
 import AddVisits from './pages/visits/AddVisits';
 import ViewVisits from './pages/visits/ViewVisits';
+
+/** Analytics */
+import Analytics from './pages/analytics/Analytics'
+
+/** Profile */
+import Profile from './pages/login/profile';
+
 /*Login*/
-import Login from './pages/login/Login_page';
+import LoginPage from './pages/Authentication/Login';
 import DashboardBox from '../src/pages/Dashboard/Dashboard';
-import { useTheme } from './components/ThemeContext'; // Import the useTheme hook
+import { useTheme } from './components/ThemeContext';
+import { useAuth } from './pages/Authentication/AuthContext'; // Assuming you have an AuthContext for authentication
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "../node_modules/bootstrap/dist/js/bootstrap";
-import Login_page from './pages/login/Login_page';
+
+
 const MyContext = createContext();
+
 function App() {
-  const { toggleTheme, theme } = useTheme(); // Get the toggleTheme function and theme
+  const { toggleTheme, theme } = useTheme();
+  const { isAuthenticated } = useAuth(); // Get authentication state from context
   const [isToggleSidebar, setIsToggleSidebar] = useState(false);
   const values = {
     isToggleSidebar,
     setIsToggleSidebar,
   };
-  const location = useLocation(); // Get the current route
-  // Determine if we are on the login page
+
+  const location = useLocation();
   const isLoginPage = location.pathname === "/login";
+
   useEffect(() => {
-    // Add or remove class based on isLoginPage
     if (isLoginPage) {
       document.body.classList.add("bgColor");
     } else {
       document.body.classList.remove("bgColor");
     }
-    
-    // Cleanup function to remove class if component unmounts
+
     return () => {
       document.body.classList.remove("bgColor");
     };
-  }, [isLoginPage]); // Re-run this effect whenever isLoginPage changes
+  }, [isLoginPage]);
+
   return (
     <MyContext.Provider value={values}>
       {!isLoginPage && <Header />}
@@ -67,36 +78,56 @@ function App() {
         )}
         <div className={isLoginPage ? "contentLogin" : `content ${isToggleSidebar ? 'toggle' : ''}`}>
           <Routes>
-            <Route index element={<DashboardBox />} />
+            {/* Root route - maintain the current path */}
+            <Route 
+              path="/" 
+              element={isAuthenticated ? <Navigate to={location.pathname} /> : <Navigate to="/login" />} 
+            />
+            {/* Dashboard and other routes maintain current path */}
+            <Route path="/dashboard" element={isAuthenticated ? <DashboardBox /> : <Navigate to={location.pathname} />} />
+            
             {/* RFQ Management */}
-            <Route path="/customer-rfqs" element={<CustomerRfqs />} />
-            <Route path="/rfq-dashboard" element={<RfqDashboard />} />
-            <Route path="/partner-rfq-response" element={<PartnerRFQs />} />
+            <Route path="/customer-rfqs" element={isAuthenticated ? <CustomerRfqs /> : <Navigate to="/login" />} />
+            <Route path="/rfq-dashboard" element={isAuthenticated ? <RfqDashboard /> : <Navigate to={location.pathname} />} />
+            <Route path="/partner-rfq-response" element={isAuthenticated ? <PartnerRFQs /> : <Navigate to={location.pathname} />} />
+            
             {/* Project Management */}
-            <Route path="/project-dashboard" element={<ProjectDashboard />} />
-            <Route path="/upcoming-deliveries" element={<UpcomingDeliveries />} />
-            <Route path="/quality-check" element={<QualityCheck />} />
+            <Route path="/project-dashboard" element={isAuthenticated ? <ProjectDashboard /> : <Navigate to={location.pathname} />} />
+            <Route path="/upcoming-deliveries" element={isAuthenticated ? <UpcomingDeliveries /> : <Navigate to={location.pathname} />} />
+            <Route path="/quality-check" element={isAuthenticated ? <QualityCheck /> : <Navigate to={location.pathname} />} />
+            
             {/* Purchase */}
-            <Route path="/vendor-pos" element={<VendorPos />} />
-            <Route path="/vendor-invoices" element={<VendorInvoices />} />
-            <Route path="/view-payments" element={<RequestViewPayments />} />
+            <Route path="/vendor-pos" element={isAuthenticated ? <VendorPos /> : <Navigate to={location.pathname} />} />
+            <Route path="/vendor-invoices" element={isAuthenticated ? <VendorInvoices /> : <Navigate to={location.pathname} />} />
+            <Route path="/view-payments" element={isAuthenticated ? <RequestViewPayments /> : <Navigate to={location.pathname} />} />
+            
             {/* Drawings */}
-            <Route path="/add-drawing" element={<AddDrawings />} />
-            <Route path="/view-drawings" element={<ViewDrawings />} />
+            <Route path="/add-drawing" element={isAuthenticated ? <AddDrawings /> : <Navigate to={location.pathname} />} />
+            <Route path="/view-drawings" element={isAuthenticated ? <ViewDrawings /> : <Navigate to={location.pathname} />} />
+            
             {/* Assets */}
-            <Route path="/add-assets" element={<AddAssets />} />
-            <Route path="/view-assets" element={<ViewAssets />} />
-            <Route path="/asset-utilisation" element={<AssestUtilisation />} />
+            <Route path="/add-assets" element={isAuthenticated ? <AddAssets /> : <Navigate to={location.pathname} />} />
+            <Route path="/view-assets" element={isAuthenticated ? <ViewAssets /> : <Navigate to={location.pathname} />} />
+            <Route path="/asset-utilisation" element={isAuthenticated ? <AssestUtilisation /> : <Navigate to={location.pathname} />} />
+            
             {/* Visits */}
-            <Route path="/add-visits" element={<AddVisits />} />
-            <Route path="/view-visits" element={<ViewVisits />} />
+            <Route path="/add-visits" element={isAuthenticated ? <AddVisits /> : <Navigate to={location.pathname} />} />
+            <Route path="/view-visits" element={isAuthenticated ? <ViewVisits /> : <Navigate to={location.pathname} />} />
+
+            {/* Analytics */}
+            <Route path="/analytics" element={isAuthenticated ? <Analytics /> : <Navigate to={location.pathname} />} />
+
+            {/* Profile */}
+            <Route path="/profile" element={isAuthenticated ? <Profile /> : <Navigate to={location.pathname} />} />
+            
             {/* Login */}
-            <Route path="/login" element={<Login_page />} />
+            <Route path="/login" element={!isAuthenticated ? <LoginPage /> : <Navigate to="/dashboard" />} />
           </Routes>
         </div>
       </div>
     </MyContext.Provider>
   );
 }
+
 export default App;
 export { MyContext };

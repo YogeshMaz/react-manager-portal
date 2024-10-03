@@ -18,6 +18,7 @@ export const ReportNameLists = {
     },
     upcomingDeliveries: "Delivery_Schedule_Calender",
     qualityCheck: "All_Quality_Controls",
+    pmLoginReport: "MM_Manager_Login_Report"
   },
   purchaseManagement: {
     viewVendorPos: "Approved_POs",

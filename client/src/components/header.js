@@ -3,6 +3,8 @@ import logo from '../images/MM.jpeg';
 import SearchBox from "../components/searchbox";
 import Button from '@mui/material/Button';
 import { MdMenuOpen, MdOutlineLightMode, MdOutlineDarkMode, MdOutlineMenu, MdNotificationsNone, MdOutlineMailOutline } from "react-icons/md";
+import { FaRegUserCircle } from "react-icons/fa";
+import { FiLogOut } from "react-icons/fi";
 import { IoIosCart } from "react-icons/io";
 import React, { useContext, useState } from "react";
 
@@ -16,8 +18,20 @@ import { Avatar } from "@mui/material";
 import { MyContext } from "../App";
 import { useTheme } from "../components/ThemeContext"; // Import useTheme hook
 import UserInfos from "./hooks/fetchApiDetails";
+import { useAuth } from '../pages/Authentication/AuthContext';
+import { useNavigate } from 'react-router-dom';
+
 
 const Header = () => {
+
+    const { logout } = useAuth();
+    const navigate = useNavigate();
+  
+    const handleLogout = () => {
+      logout(); // Clear authentication state
+      navigate('/login'); // Redirect to login page
+    };
+
     const [anchorEl, setAnchorEl] = useState(null);
     const handleClick = (event) => { setAnchorEl(event.currentTarget); };
     const handleClose = () => { setAnchorEl(null); };
@@ -159,16 +173,12 @@ const Header = () => {
                             transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                             anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                         >
-                            <MenuItem onClick={handleClose}><Avatar /> Profile</MenuItem>
-                            <MenuItem onClick={handleClose}><Avatar /> My account</MenuItem>
+                            <Link to="/profile">
+                                <MenuItem onClick={handleClose}><FaRegUserCircle/> Profile</MenuItem>
+                            </Link>
                             <Divider />
-                            <MenuItem onClick={handleClose}>
-                                <ListItemIcon><PersonAdd fontSize="small" /></ListItemIcon>
-                                Add another account
-                            </MenuItem>
-                            <MenuItem onClick={handleClose}>
-                                <ListItemIcon><Settings fontSize="small" /></ListItemIcon>
-                                Settings
+                            <MenuItem onClick={handleLogout} >
+                                <FiLogOut />Logout
                             </MenuItem>
                         </Menu>
                     </div>

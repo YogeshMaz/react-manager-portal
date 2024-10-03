@@ -3,10 +3,10 @@
   margin: 0;
   padding: 0;
 }
-/* test */
 body {
   font-family: "Open Sans", sans-serif !important;
   background: #f2f2f2 !important;
+  font-size: 15px!important;
 }
 ::-webkit-scrollbar {
   width: 3px !important;
@@ -53,6 +53,13 @@ header button.rounded-circle svg {
 }
 header button.rounded-circle:hover svg {
   color: #0858f7 !important;
+}
+a {
+  color: inherit;
+}
+.css-1h4bzp1-MuiButtonBase-root-MuiMenuItem-root {
+  width: 110px!important;
+  justify-content: space-between!important;
 }
 .searchBox {
   width: 400px;
@@ -452,7 +459,7 @@ header button.rounded-circle:hover svg {
   overflow: hidden;
   border-radius: 10px;
   margin: 5px 0 15px;
-  height: 100px;
+  height: 92px;
   box-shadow: 0 5px 7px 0 #cdcdcd;
 }
 .rfqwidgetBox .icon{

@@ -16,7 +16,7 @@ import {
 } from "react-icons/md";
 import usefetchCustomAPIData from "../../components/hooks/fetchCustomAPI";
 import { APILinkRoutes } from "../../components/apiLinks/APILinkRoutes";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Box } from "@mui/material";
 import Skeleton from "@mui/material/Skeleton";
 
@@ -24,6 +24,8 @@ const Dashboard = () => {
   const { data, error, noData } = usefetchCustomAPIData(
     APILinkRoutes.summaryRoute
   );
+
+  const location = useLocation();
 
   const renderSkeleton = () => (
     <Box mt={2}>
