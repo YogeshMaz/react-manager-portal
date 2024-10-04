@@ -1,6 +1,6 @@
-// globals.js
+// src/globals.js
 const globals = {
   pmEmail: null,
 };
 
-module.exports = globals;
+export default globals;

@@ -6,6 +6,7 @@ const pmEmail = process.env.PM_EMAIL;
 import { AppNames } from "../zohoAssets/AppLists.js";
 import { ReportNameLists } from "../zohoAssets/ReportLists.js";
 import logger from "../../logger.js";
+import globals from '../../gloabl.js';
 
 /* Open Projects */
 export const fetchOpenProjects = async (req, res) => {
@@ -194,11 +195,11 @@ export const fetchPMLoginDetail = async (req, res) => {
   }
 };
 
-// src/controllers/projectController.js
+/** login check */
+
 export const fetchPMLoginDetails = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log("Email:", email, "Password:", password);
 
     const appName = AppNames.PM;
     const reportName = ReportNameLists.projectManagement.pmLoginReport;
@@ -206,13 +207,13 @@ export const fetchPMLoginDetails = async (req, res) => {
     const data = await fetchReportData(appName, reportName, access_token);
 
     // Check if the provided email and password match any user in the data
-    const user = data.data.find(user => user.Name.Email === email && user.PIN === password); // Use find for better readability
+    const user = data.data.find(user => user.Name.Email === email && user.PIN === password);
 
     if (user) {
-      // If a user is found, respond with success
+      globals.pmEmail = user.Name.Email; // Set the global variable
+      console.log('PM Email Set in Controller:', globals.pmEmail); // Log to confirm update
       return res.status(200).json({ code: 200, message: "Login successful" });
     } else {
-      // If no user was found, respond with invalid credentials
       return res.status(401).json({ code: 401, message: "Invalid credentials" });
     }
   } catch (error) {
@@ -220,4 +221,6 @@ export const fetchPMLoginDetails = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+
 

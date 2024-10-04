@@ -43,6 +43,8 @@ app.use("/api/drawing", drawingRoutes);
 app.use("/api/asset", assetRoutes);
 app.use("/api/visit", visitRoutes);
 
+
+
 // Error Handling Middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);

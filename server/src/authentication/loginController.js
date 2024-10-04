@@ -1,28 +1,25 @@
-// import jwt from 'jsonwebtoken';
-// import bcrypt from "bcrypt";
-// import User from "../models/user";
-
-// export const loginUser = async (req, res) => {
-//   const { email, password } = req.body;
-
-//   try {
-//     // Check if the user exists
-//     const user = await User.findOne({ email });
-//     if (!user) {
-//       return res.status(400).json({ message: "User not found" });
-//     }
-
-//     // Compare the password
-//     const isMatch = await bcrypt.compare(password, user.password);
-//     if (!isMatch) {
-//       return res.status(400).json({ message: "Invalid credentials" });
-//     }
-
-//     // Generate a JWT token
-//     const token = jwt.sign({ userId: user._id, email: user.email }, "yourSecretKey", { expiresIn: "1h" });
-
-//     res.status(200).json({ token, message: "Login successful" });
-//   } catch (error) {
-//     res.status(500).json({ message: "Error logging in", error });
-//   }
-// };
+export const fetchPMLoginDetails = async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      console.log("Email:", email, "Password:", password);
+  
+      const appName = AppNames.PM;
+      const reportName = ReportNameLists.projectManagement.pmLoginReport;
+      const access_token = await getAccessToken();
+      const data = await fetchReportData(appName, reportName, access_token);
+  
+      // Check if the provided email and password match any user in the data
+      const user = data.data.find(user => user.Name.Email === email && user.PIN === password); // Use find for better readability
+  
+      if (user) {
+        // If a user is found, respond with success
+        return res.status(200).json({ code: 200, message: "Login successful" });
+      } else {
+        // If no user was found, respond with invalid credentials
+        return res.status(401).json({ code: 401, message: "Invalid credentials" });
+      }
+    } catch (error) {
+      console.error("Error in fetchPMLoginDetails:", error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  };
