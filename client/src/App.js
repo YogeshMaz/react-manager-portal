@@ -111,8 +111,8 @@ function App() {
             <Route path="/asset-utilisation" element={isAuthenticated ? <AssestUtilisation /> : <Navigate to={location.pathname} />} />
             
             {/* Visits */}
-            <Route path="/add-visits" element={isAuthenticated ? <AddVisits /> : <Navigate to={location.pathname} />} />
-            <Route path="/view-visits" element={isAuthenticated ? <ViewVisits /> : <Navigate to={location.pathname} />} />
+            {/* <Route path="/add-visits" element={isAuthenticated ? <AddVisits /> : <Navigate to={location.pathname} />} />
+            <Route path="/view-visits" element={isAuthenticated ? <ViewVisits /> : <Navigate to={location.pathname} />} /> */}
 
             {/* Analytics */}
             <Route path="/analytics" element={isAuthenticated ? <Analytics /> : <Navigate to={location.pathname} />} />

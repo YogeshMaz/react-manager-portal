@@ -161,23 +161,23 @@ const Sidebar = () => {
         },
       ],
     },
-    {
-      name: "Visits",
-      icon: <MdOutlineEvent sx={{ fontSize: 24 }} />,
-      dropdown: "visit",
-      items: [
-        {
-          name: "Add Visits",
-          icon: <FiPlusSquare sx={{ fontSize: 20 }} />,
-          path: "/add-visits",
-        },
-        {
-          name: "View Visits",
-          icon: <MdOutlineRemoveRedEye sx={{ fontSize: 20 }} />,
-          path: "/view-visits",
-        },
-      ],
-    },
+    // {
+    //   name: "Visits",
+    //   icon: <MdOutlineEvent sx={{ fontSize: 24 }} />,
+    //   dropdown: "visit",
+    //   items: [
+    //     {
+    //       name: "Add Visits",
+    //       icon: <FiPlusSquare sx={{ fontSize: 20 }} />,
+    //       path: "/add-visits",
+    //     },
+    //     {
+    //       name: "View Visits",
+    //       icon: <MdOutlineRemoveRedEye sx={{ fontSize: 20 }} />,
+    //       path: "/view-visits",
+    //     },
+    //   ],
+    // },
   ];
 
   return (
