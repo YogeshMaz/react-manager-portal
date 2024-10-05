@@ -11,7 +11,7 @@ export const fetchVendorPOs = async (req, res) => {
     const reportName = ReportNameLists.purchaseManagement.viewVendorPos;
     const criteriaField = "Select_PM";
     const access_token = await getAccessToken();
-    const data = await fetchReportCriteria(appName, reportName, criteriaField, pmEmail, access_token);
+    const data = await fetchReportCriteria(appName, reportName, criteriaField, global.loggedInEmail, access_token);
     res.json(data);
   } catch (error) {
     res.status(500).json({ message: "Error fetching customer RFQs" });
@@ -25,7 +25,7 @@ export const fetchVendorInvoices = async (req, res) => {
     const reportName = ReportNameLists.purchaseManagement.viewVendorInvoices;
     const criteriaField = "Project_Details";
     const access_token = await getAccessToken();
-    const data = await fetchReportCriteria(appName, reportName, criteriaField, pmEmail, access_token);
+    const data = await fetchReportCriteria(appName, reportName, criteriaField, global.loggedInEmail, access_token);
     res.json(data);
   } catch (error) {
     res.status(500).json({ message: "Error fetching open RFQs" });
@@ -39,7 +39,7 @@ export const fetchRequestViewPayments = async (req, res) => {
       const reportName = ReportNameLists.purchaseManagement.viewPayments;
       const criteriaField = "Project_manager";
       const access_token = await getAccessToken();
-      const data = await fetchReportCriteria(appName,reportName,criteriaField,pmEmail,access_token);
+      const data = await fetchReportCriteria(appName,reportName,criteriaField,global.loggedInEmail,access_token);
       res.json(data);
     } catch (error) {
       res.status(500).json({ message: "Error fetching open RFQs" });

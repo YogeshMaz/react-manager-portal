@@ -577,3 +577,19 @@ input#\:r2v\: {
 }
 /*------------------------*/
 a{ text-decoration: none!important; }
+/* Light mode styles */
+#dark-mode .sidebar {
+  background-color: #1d1d1d;
+}
+#dark-mode .main .sidebarWrapper .sidebar ul li button {
+  color: #fff !important;
+}
+#light-mode .sidebar {
+  background-color: #fff;
+}
+#light-mode .main .sidebarWrapper .sidebar ul li button {
+  color: #000 !important;
+}
+.myAccwrapper .userInfo p {
+  text-transform: lowercase;
+}

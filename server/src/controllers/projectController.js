@@ -2,11 +2,10 @@ import fetchReportCriteria from "../components/FetchReportCriteria.js";
 import fetchReportDataByID from "../components/FetchReportAPIDataByID.js";
 import fetchReportData from "../components/FetchReportAPIData.js";
 import getAccessToken from "../accessToken/checkAuthExpiration.js";
-const pmEmail = process.env.PM_EMAIL;
+// const pmEmail = process.env.PM_EMAIL;
 import { AppNames } from "../zohoAssets/AppLists.js";
 import { ReportNameLists } from "../zohoAssets/ReportLists.js";
 import logger from "../../logger.js";
-import globals from '../../gloabl.js';
 
 /* Open Projects */
 export const fetchOpenProjects = async (req, res) => {
@@ -20,7 +19,7 @@ export const fetchOpenProjects = async (req, res) => {
       appName,
       reportName,
       criteriaField,
-      pmEmail,
+      global.loggedInEmail,
       access_token
     );
     logger.info(`Request received at Open Projects`);
@@ -43,7 +42,7 @@ export const fetchCompletedProjects = async (req, res) => {
       appName,
       reportName,
       criteriaField,
-      pmEmail,
+      global.loggedInEmail,
       access_token
     );
     logger.info(`Request received at Completed Projects`);
@@ -66,7 +65,7 @@ export const fetchOnHoldProjects = async (req, res) => {
       appName,
       reportName,
       criteriaField,
-      pmEmail,
+      global.loggedInEmail,
       access_token
     );
     logger.info(`Request received at OnHold Projects`);
@@ -89,7 +88,7 @@ export const fetchCancelledProjects = async (req, res) => {
       appName,
       reportName,
       criteriaField,
-      pmEmail,
+      global.loggedInEmail,
       access_token
     );
     logger.info(`Request received at Cancelled Projects`);
@@ -144,7 +143,7 @@ export const fetchUpcomingDeliveries = async (req, res) => {
       appName,
       reportName,
       criteriaField,
-      pmEmail,
+      global.loggedInEmail,
       access_token
     );
     logger.info(`Request received at Upcoming Projects`);
@@ -166,7 +165,7 @@ export const fetchQualityCheck = async (req, res) => {
       appName,
       reportName,
       criteriaField,
-      pmEmail,
+      global.loggedInEmail,
       access_token
     );
     logger.info(`Request received at Quality Check`);
@@ -195,32 +194,6 @@ export const fetchPMLoginDetail = async (req, res) => {
   }
 };
 
-/** login check */
-
-export const fetchPMLoginDetails = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    const appName = AppNames.PM;
-    const reportName = ReportNameLists.projectManagement.pmLoginReport;
-    const access_token = await getAccessToken();
-    const data = await fetchReportData(appName, reportName, access_token);
-
-    // Check if the provided email and password match any user in the data
-    const user = data.data.find(user => user.Name.Email === email && user.PIN === password);
-
-    if (user) {
-      globals.pmEmail = user.Name.Email; // Set the global variable
-      console.log('PM Email Set in Controller:', globals.pmEmail); // Log to confirm update
-      return res.status(200).json({ code: 200, message: "Login successful" });
-    } else {
-      return res.status(401).json({ code: 401, message: "Invalid credentials" });
-    }
-  } catch (error) {
-    console.error("Error in fetchPMLoginDetails:", error);
-    return res.status(500).json({ message: "Internal Server Error" });
-  }
-};
 
 
 

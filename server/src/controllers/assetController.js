@@ -1,7 +1,7 @@
 import fetchReportData from "../components/FetchReportAPIData.js";
 import fetchReportCriteria from "../components/FetchReportCriteria.js";
 import getAccessToken from "../accessToken/checkAuthExpiration.js";
-const pmEmail = process.env.PM_EMAIL;
+// const pmEmail = process.env.PM_EMAIL;
 
 import {AppNames} from "../zohoAssets/AppLists.js";
 import {ReportNameLists} from "../zohoAssets/ReportLists.js";
@@ -45,7 +45,7 @@ export const fetchAssestUtilisation = async (req, res) => {
       const reportName = ReportNameLists.assetManagement.assetUtilisation;
       const criteriaField = "Email_of_Project_Manager";
       const access_token = await getAccessToken();
-      const data = await fetchReportCriteria(appName, reportName, criteriaField, pmEmail, access_token);
+      const data = await fetchReportCriteria(appName, reportName, criteriaField, global.loggedInEmail, access_token);
       logger.info(`Request received at Asset Utilisation`);
       res.json(data);
     } catch (error) {

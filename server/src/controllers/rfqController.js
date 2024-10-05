@@ -7,7 +7,7 @@ import submitRFQData from "../components/addReocrdAPI.js";
 import { AppNames } from "../zohoAssets/AppLists.js";
 import { ReportNameLists } from "../zohoAssets/ReportLists.js";
 
-const pmEmail = process.env.PM_EMAIL;
+// const pmEmail = process.env.PM_EMAIL;
 
 /** Customer RFQs **/
 export const fetchCustomerRfqs = async (req, res) => {
@@ -55,7 +55,7 @@ export const fetchOpenRfqs = async (req, res) => {
       appName,
       reportName,
       criteriaField,
-      pmEmail,
+      global.loggedInEmail,
       access_token
     );
     res.json(data);
@@ -75,7 +75,7 @@ export const fetchPostEvaluationRfqs = async (req, res) => {
       appName,
       reportName,
       criteriaField,
-      pmEmail,
+      global.loggedInEmail,
       access_token
     );
     res.json(data);
@@ -95,7 +95,7 @@ export const fetchOnHoldRfqs = async (req, res) => {
       appName,
       reportName,
       criteriaField,
-      pmEmail,
+      global.loggedInEmail,
       access_token
     );
     res.json(data);
@@ -115,7 +115,7 @@ export const fetchCancelledRfqs = async (req, res) => {
       appName,
       reportName,
       criteriaField,
-      pmEmail,
+      global.loggedInEmail,
       access_token
     );
     res.json(data);
@@ -248,7 +248,7 @@ export const fetchPartnerRfqResponse = async (req, res) => {
       appName,
       reportName,
       criteriaField,
-      pmEmail,
+      global.loggedInEmail,
       access_token
     );
     res.json(data);

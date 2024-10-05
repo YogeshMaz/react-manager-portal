@@ -50,8 +50,8 @@ const UserInfos = () => {
               </span>
           </div>
           <div className="userInfo">
-              <h4>Gagan</h4>
-              <p className="mb-0">{userInfos}</p>
+              <h4>{userInfos.name}</h4>
+              <p className="mb-0">{userInfos.email}</p>
           </div>
       </Button>
     </>

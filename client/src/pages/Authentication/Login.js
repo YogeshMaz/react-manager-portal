@@ -19,7 +19,7 @@ const LoginPage = () => {
     console.log('Password:', password); // Check password value
     
     try {
-      const response = await fetch('http://localhost:5000/api/project_management/login_details', {
+      const response = await fetch('http://localhost:5000/api/login_details', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

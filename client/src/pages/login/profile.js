@@ -1,47 +1,31 @@
 import axios from 'axios';
 import './profile.css'
+import React, { useEffect, useState } from 'react';
 import { FaInstagram } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { FiFacebook } from "react-icons/fi";
 
 
 const Profile = () => {
-    // const [userData, setUserData] = useState(null);
-
-    const userData ={
-        email: "gagan.p@machinemaze.com",
-        role: "Doctor",
-    }
-
-    // useEffect(() => {
-        // Function to fetch profile data
-    //     const getProfileData = () => {
-    //         const token = JSON.parse(localStorage.getItem('token'));
-    //         const header = {
-    //             headers: {
-    //                 Authorization: `Bearer ${token}`,
-    //             },
-    //         };
-
-    //         axios.get('https://api.escuelajs.co/api/v1/users', header)
-    //             .then((res) => {
-    //                 console.log('Profile data', res.data); // Log the response to check data structure
-    //                 if (Array.isArray(res.data) && res.data.length > 0) {
-    //                     // If the response is an array, set the first user's data
-    //                     setUserData(res.data[0]);
-    //                 } else {
-    //                     setUserData(res.data);
-    //                 }
-    //             })
-    //             .catch((err) => {
-    //                 alert('You are not logged in');
-    //                 console.log('Error occurred', err);
-    //             });
-    //     };
-
-    //     // Call the function to fetch the data when the component mounts
-    //     getProfileData();
-    // }, []); // Empty dependency array ensures this runs only once when the component mounts
+    const [userInfos, setUserInfos] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+  
+    useEffect(() => {
+      const fetchUserInfos = async () => {
+        try {
+          const response = await axios.get('http://localhost:5000/api/userInfos');
+          setUserInfos(response.data); // Set the response data directly, assuming it's a string
+          setLoading(false);
+        } catch (err) {
+          console.error("Error fetching user info:", err);
+          setError('Failed to fetch user information.');
+          setLoading(false);
+        }
+      };
+  
+      fetchUserInfos();
+    }, []); // Empty dependency array ensures this runs only on component mount
 
     return (
         <div>
@@ -51,15 +35,15 @@ const Profile = () => {
                         <div className="col-xl-10 col-md-12">
                             <div className="card user-card-full">
                                 <div className="row m-l-0 m-r-0">
-                                    { userData ? (
+                                    { userInfos ? (
                                     <>
                                         <div className="col-sm-5 bg-c-lite-green user-profile">
                                             <div className="card-block text-center text-white">
                                                 <div className="m-b-25">
                                                     <img src="https://img.icons8.com/bubbles/100/000000/user.png" className="img-radius" alt="User-Profile-Image"/>
                                                 </div>
-                                                <h6 className="f-w-600">{userData?.name || 'N/A'}</h6>
-                                                <p>{userData?.role || 'N/A'}</p>
+                                                <h6 className="f-w-600">{userInfos?.name || 'N/A'}</h6>
+                                                <p>{userInfos?.role || 'N/A'}</p>
                                                 <i className=" mdi mdi-square-edit-outline feather icon-edit m-t-10 f-16"></i>
                                             </div>
                                         </div>
@@ -69,7 +53,7 @@ const Profile = () => {
                                                 <div className="row">
                                                     <div className="col-sm-6">
                                                         <p className="m-b-10 f-w-600">Email</p>
-                                                        <h6 className="text-muted f-w-400">{userData?.email || 'N/A'}</h6>
+                                                        <h6 className="text-muted f-w-400">{userInfos?.email || 'N/A'}</h6>
                                                     </div>
                                                     <div className="col-sm-6">
                                                         <p className="m-b-10 f-w-600">Phone</p>

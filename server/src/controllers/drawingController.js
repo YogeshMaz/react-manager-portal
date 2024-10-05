@@ -1,6 +1,6 @@
 import fetchReportCriteria from "../components/FetchReportCriteria.js";
 import getAccessToken from "../accessToken/checkAuthExpiration.js";
-const pmEmail = process.env.PM_EMAIL;
+// const pmEmail = process.env.PM_EMAIL;
 import {AppNames} from "../zohoAssets/AppLists.js";
 import {ReportNameLists} from "../zohoAssets/ReportLists.js";
 import logger from "../../logger.js";
@@ -12,7 +12,7 @@ export const fetchAddDrawings = async (req, res) => {
     const reportName = ReportNameLists.drawingVersion.addDrawing;
     const criteriaField = "Select_PM";
     const access_token = await getAccessToken();
-    const data = await fetchReportCriteria(appName, reportName, criteriaField, pmEmail, access_token);
+    const data = await fetchReportCriteria(appName, reportName, criteriaField, global.loggedInEmail, access_token);
     logger.info(`Request received at Add Drawing`);
     res.json(data);
   } catch (error) {
@@ -28,7 +28,7 @@ export const fetchViewDrawings = async (req, res) => {
     const reportName = ReportNameLists.drawingVersion.viewDrawings;
     const criteriaField = "Email_of_Project_Manager";
     const access_token = await getAccessToken();
-    const data = await fetchReportCriteria(appName, reportName, criteriaField, pmEmail, access_token);
+    const data = await fetchReportCriteria(appName, reportName, criteriaField, global.loggedInEmail, access_token);
     logger.info(`Request received at View Drawings`);
     res.json(data);
   } catch (error) {
