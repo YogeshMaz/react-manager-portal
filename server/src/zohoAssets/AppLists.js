@@ -1,5 +1,5 @@
 /** Direct Application on Zoho creator */
-export const AppNames = {
+const AppNames = {
   PM : "machinemaze-project-management",
   CA : "customer-invoice",
   MMS : "request-for-quote",
@@ -9,5 +9,7 @@ export const AppNames = {
   PAY : "payments",
   AM : "asset-management",
 };
+
+export {AppNames};
 
 /** Indirect Application if want */
