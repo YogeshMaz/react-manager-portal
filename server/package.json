@@ -2,11 +2,11 @@
   "name": "react-manager-portal",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
+    "start": "node server.js",
     "client": "cd ../client && npm start",
     "dev": "concurrently -n 'server,client' -c 'blue,green' \"nodemon server.js\" \"npm run client\""
   },
@@ -27,8 +27,10 @@
     "node": "^22.8.0",
     "node-fetch": "^3.3.2",
     "nodemon": "^3.1.4",
+    "path": "^0.12.7",
     "pm2": "^5.4.2",
     "qs": "^6.13.0",
+    "url": "^0.11.4",
     "winston": "^3.14.2"
   },
   "devDependencies": {

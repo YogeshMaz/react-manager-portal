@@ -1,4 +1,5 @@
 import axios from "axios";
+import path from 'path';
 import fetchReportCriteria from "../components/FetchReportCriteria.js";
 import fetchCustomAPIData from "../components/FetchCustomAPI.js";
 import getAccessToken from "../accessToken/checkAuthExpiration.js";
@@ -166,6 +167,11 @@ export const addRfqRecords = async (req, res) => {
     const drawingFile = req.files["drawingFile"] ? req.files["drawingFile"][0] : null;
     const partnerQuoteFile = req.files["partnerQuoteFile"] ? req.files["partnerQuoteFile"][0] : null;
 
+    // Prepare file paths or URLs to return
+    const drawingFilePath = drawingFile ? path.join('/uploaded', drawingFile.filename) : null; // Path for the drawing file
+    const partnerQuoteFilePath = partnerQuoteFile ? path.join('/uploaded', partnerQuoteFile.filename) : null; // Path for the partner quote file
+    console.log("wanted 1", drawingFile?.filename);
+    console.log("wanted 2", drawingFile);
     // Access additional form fields from req.body
     const {
       projectNumber,
@@ -205,8 +211,8 @@ export const addRfqRecords = async (req, res) => {
       Total_Order_Value: totalOrderValue,
       Total_Cost: totalCost,
       Lead_Time_in_Days: leadTime,
-      Upload_Partner_Quote: partnerQuoteFile ? partnerQuoteFile.path : null, // Store the path of the uploaded file
-      Upload_Drawing_File: drawingFile ? drawingFile.path : null, // Store the path of the uploaded file
+      Upload_Drawing_Url: "https://6294-106-51-75-87.ngrok-free.app" + drawingFilePath, // Path for the partner quote
+      Upload_Partner_Quote_Url: "https://6294-106-51-75-87.ngrok-free.app" + partnerQuoteFilePath, // Path for the drawing file
     };
 
     // Submit RFQ data
@@ -214,10 +220,10 @@ export const addRfqRecords = async (req, res) => {
 
     // Log uploaded files (if any)
     if (drawingFile) {
-      console.log("Drawing File:", drawingFile.path); // Logging the path of the drawing file
+      console.log("Drawing File Path:", drawingFilePath); // Logging the path of the drawing file
     }
     if (partnerQuoteFile) {
-      console.log("Partner Quote File:", partnerQuoteFile.path); // Logging the path of the partner quote file
+      console.log("Partner Quote File Path:", partnerQuoteFilePath); // Logging the path of the partner quote file
     }
 
     // Log the form fields
@@ -226,16 +232,15 @@ export const addRfqRecords = async (req, res) => {
     // Return a successful response
     res.json({
       message: "RFQ record added successfully",
-      drawingFile: drawingFile ? drawingFile.path : null, // Return the path of the drawing file
-      partnerQuoteFile: partnerQuoteFile ? partnerQuoteFile.path : null, // Return the path of the partner quote file
-      data: responseData,
+      drawingFile: drawingFilePath, // Return the path of the drawing file
+      partnerQuoteFile: partnerQuoteFilePath, // Return the path of the partner quote file
+      data: responseData, // Return the submitted RFQ data response
     });
   } catch (error) {
     console.error("Error adding RFQ record:", error);
     res.status(500).json({ message: "Error adding RFQ record", error: error.message });
   }
 };
-
 
 /** Partner RFQ Response **/
 export const fetchPartnerRfqResponse = async (req, res) => {
@@ -283,3 +288,28 @@ function formatDate(dateString) {
 const dateStr = "Tue, 01 Oct 2024 09:35:17 GMT";
 const formatted = formatDate(dateStr);
 console.log(formatted); // "01-Oct-2024 09:35:17"
+
+const uploadFiles = async (drawingFile, partnerQuoteFile) => {
+  const formData = new FormData();
+
+  if (drawingFile) {
+    formData.append('drawingFile', drawingFile);
+  }
+  if (partnerQuoteFile) {
+    formData.append('partnerQuoteFile', partnerQuoteFile);
+  }
+
+  try {
+    const response = await axios.post('http://localhost:5000/api/add_rfq_record', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer YOUR_ACCESS_TOKEN`, // Include your access token if required
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error uploading files:', error.response.data);
+    throw error; // Rethrow the error to handle it elsewhere
+  }
+};
