@@ -24,6 +24,10 @@ app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json());
 
+// Call the getAccessToken function initially and set to refresh every hour
+getAccessToken();
+setInterval(getAccessToken, 3600000);
+
 // Get the directory name
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -51,10 +55,6 @@ app.get("/api/uploaded-files", (req, res) => {
     res.json(uploadedFiles);
   });
 });
-
-// Call the getAccessToken function initially and set to refresh every hour
-getAccessToken();
-setInterval(getAccessToken, 3600000);
 
 // Initialize global variable for logged in email
 global.loggedInEmail = null;
