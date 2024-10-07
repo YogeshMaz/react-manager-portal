@@ -63,4 +63,7 @@ export const publishedUrls = {
     viewAssets:
       "hHHXzsnCqxX9AspRZR6Pw53DGJ4Tf07wKWXeKFNvQ4E24PjCHeUNJvWY6PY3Ywh5sgRVnzQNye6VHjhf5Hr1yueJHx2EZSQ5deTV",
   },
+  LoginManagement: {
+    employeeDatabase: "3tjCYAexsetpRK8NZzBXNjhu2HhKP0KGXs1JhEOzKG3mUNSMsgyt81yNCvzN85VAPeyTeqanwddzX8v1uMnWYQzK25uHfUFWdObp",
+  }
 };

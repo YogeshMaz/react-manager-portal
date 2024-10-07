@@ -18,7 +18,6 @@ export const ReportNameLists = {
     },
     upcomingDeliveries: "Delivery_Schedule_Calender",
     qualityCheck: "All_Quality_Controls",
-    pmLoginReport: "MM_Manager_Login_Report"
   },
   purchaseManagement: {
     viewVendorPos: "Approved_POs",
@@ -38,4 +37,8 @@ export const ReportNameLists = {
     addVisit: "Visit_Log",
     viewAssets: "Visit_Log_Report",
   },
+  loginManagement: {
+    employeeDatabse: "Add_Internal_Project_Manager_Profile_Report",
+    pmLoggedInReport: "MM_Manager_Login_Report"
+  }
 };

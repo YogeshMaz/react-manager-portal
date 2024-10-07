@@ -28,6 +28,9 @@ setInterval(getAccessToken, 3600000);
 // Initialize global variable for logged in email
 global.loggedInEmail = null;
 global.loggedInName = null;
+global.loggedInUserRole = null;
+global.loggedInUserProfile = null;
+global.loggedInUserId = null;
 
 // Login Route
 app.post("/api/login_details", fetchPMLoginDetails);
@@ -36,7 +39,10 @@ app.post("/api/login_details", fetchPMLoginDetails);
 app.get("/api/userInfos", (req, res) => {
     const data = {
       email: global.loggedInEmail,
-      name: global.loggedInName
+      name: global.loggedInName,
+      role: global.loggedInUserRole,
+      profile: global.loggedInUserProfile,
+      ID: global.loggedInUserId
     };
   
     if (data.email || data.name) {

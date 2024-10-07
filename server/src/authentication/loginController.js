@@ -12,19 +12,22 @@ export const fetchPMLoginDetails = async (req, res) => {
     console.log("Email:", email, "Password:", password);
 
     const appName = AppNames.PM;
-    const reportName = ReportNameLists.projectManagement.pmLoginReport;
+    const reportName = ReportNameLists.loginManagement.employeeDatabse;
     const access_token = await getAccessToken();
     const data = await fetchReportData(appName, reportName, access_token);
 
     // Check if the provided email and password match any user in the data
     const user = data.data.find(
-      (user) => user.Name.Email === email && user.PIN === password
+      (user) => user.Email === email && user.Login_Pin === password
     );
 
     if (user) {
       // Instead of updating .env, store the email in a global variable
-      global.loggedInEmail = user.Name.Email;
-      global.loggedInName = user.Name["Name.first_name"];
+      global.loggedInEmail = user.Email;
+      global.loggedInName = user.Name.first_name;
+      global.loggedInUserRole = user.Vertical;
+      global.loggedInUserProfile = user.Upload_Photo;
+      global.loggedInUserId = user.ID;
       // console.log("name", user.Name["Name.first_name"]);
       // console.log(`Logged in email set to: ${global.loggedInEmail}`);
 

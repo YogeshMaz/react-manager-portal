@@ -38,4 +38,8 @@ export const ReportNameLists = {
     addVisit: "Visit_Log",
     viewAssets: "Visit_Log_Report",
   },
+  loginManagement: {
+    employeeDatabase: "Add_Internal_Project_Manager_Profile_Report",
+    pmLoggedInReport: "MM_Manager_Login_Report"
+  }
 };

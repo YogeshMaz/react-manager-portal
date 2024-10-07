@@ -3,6 +3,11 @@ import axios from 'axios';
 import { Box, CircularProgress, Alert } from '@mui/material';
 import Button from '@mui/material/Button'; 
 
+import { ReportNameLists } from '../zohoAssets/ReportLists';
+import { AppNames } from '../zohoAssets/AppLists';
+import { publishedUrls } from '../zohoAssets/PublishedUrl';
+import { constructImageSrc } from '../columns/utilities/ConstructImageSrc';
+
 
 const UserInfos = () => {
   const [userInfos, setUserInfos] = useState('');
@@ -25,6 +30,21 @@ const UserInfos = () => {
     fetchUserInfos();
   }, []); // Empty dependency array ensures this runs only on component mount
 
+  let imageUrl = "";
+  if (userInfos?.profile) {
+    imageUrl = constructImageSrc(
+      userInfos?.profile,
+      AppNames.PM,
+      ReportNameLists.loginManagement.employeeDatabase,
+      userInfos?.ID,
+      "Upload_Photo",
+      publishedUrls.LoginManagement.employeeDatabase
+    );
+  } else {
+    imageUrl = "https://img.icons8.com/bubbles/100/000000/user.png";
+  }
+
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
@@ -46,7 +66,7 @@ const UserInfos = () => {
       <Button className="myAcc d-flex align-items-center"> 
           <div className="userImg">
               <span className="rounded-circle">
-                  <img src="https://mironcoder-hotash.netlify.app/images/avatar/01.webp" alt="profile"/>
+                  {imageUrl}
               </span>
           </div>
           <div className="userInfo">
