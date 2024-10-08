@@ -6,6 +6,7 @@ import getAccessToken from "../accessToken/checkAuthExpiration.js";
 import { AppNames } from '../zohoAssets/AppLists.js';
 import { ReportNameLists } from '../zohoAssets/ReportLists.js';
 import { exec } from 'child_process'; // Import exec to run shell commands
+const apiUrl = process.env.REACT_APP_LOCALHOST;
 
 export const fetchPMLoginDetails = async (req, res) => {
   try {
@@ -26,7 +27,7 @@ export const fetchPMLoginDetails = async (req, res) => {
 
       // Make the external HTTP call only if login is successful
       try {
-        const response = await axios.get("http://localhost:5000/api/summary/details");
+        const response = await axios.get(apiUrl + "/api/summary/details");
         console.log("Summary details fetched successfully", response.data);
       } catch (err) {
         console.error("Error fetching summary details:", err.message);

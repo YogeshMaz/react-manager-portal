@@ -8,6 +8,7 @@ import { AppNames } from '../zohoAssets/AppLists';
 import { publishedUrls } from '../zohoAssets/PublishedUrl';
 import { constructImageSrc } from '../columns/utilities/ConstructImageSrc';
 
+const apiUrl = process.env.REACT_APP_LOCALHOST;
 
 const UserInfos = () => {
   const [userInfos, setUserInfos] = useState('');
@@ -17,7 +18,7 @@ const UserInfos = () => {
   useEffect(() => {
     const fetchUserInfos = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/userInfos');
+        const response = await axios.get(apiUrl + '/api/userInfos');
         setUserInfos(response.data); // Set the response data directly, assuming it's a string
         setLoading(false);
       } catch (err) {

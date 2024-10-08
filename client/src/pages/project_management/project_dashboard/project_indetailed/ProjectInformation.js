@@ -5,11 +5,11 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import useFetchReportById from "../../../../components/hooks/fetchRecordById";
 import Logo from "../../../../images/MM.jpeg";
-
+const apiUrl = process.env.REACT_APP_LOCALHOST;
 
 const ProjectDetailPrint = () => {
   // const { data, error, noData } = useFetchReportData(
-  //   "http://localhost:5000/api/project_management/project_dashboard/view_projects"
+  //   apiUrl + "/api/project_management/project_dashboard/view_projects"
   // );
   // }
   
@@ -20,7 +20,7 @@ const ProjectDetailPrint = () => {
 
   // console.log("Record ID:", recordID); 
   const { data, error, noData } = useFetchReportById(
-    "http://localhost:5000/api/project_management/project_dashboard/view_projects",
+    apiUrl + "/api/project_management/project_dashboard/view_projects",
     { RecordID: recordID } 
   );
 

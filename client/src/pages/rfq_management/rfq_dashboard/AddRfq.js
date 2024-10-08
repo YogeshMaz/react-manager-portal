@@ -17,6 +17,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import dayjs from "dayjs";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+const apiUrl = process.env.REACT_APP_LOCALHOST;
 
 const AddProject = () => {
   const { data } = useFetchCustomDataV1(APILinkRoutes.AddRfqsRoute);
@@ -126,7 +127,7 @@ const AddProject = () => {
 
       try {
         const response = await fetch(
-          "http://localhost:5000/api/rfq_management/add_rfq_record",
+          apiUrl + "/api/rfq_management/add_rfq_record",
           {
             method: "POST",
             body: formData,

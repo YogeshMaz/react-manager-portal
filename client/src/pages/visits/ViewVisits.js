@@ -4,9 +4,10 @@ import React from 'react';
 import Table from '../../components/tables/DataTablesV1';
 import { viewVisitColumnV1 } from '../../components/columns/AllColumnsV1'; // Import columns from your column definitions
 import useFetchReportData from '../../components/hooks/fetchReportData'; // Adjust the import path as needed
+const apiUrl = process.env.REACT_APP_LOCALHOST;
 
 const ViewVisits = () => {
-  const { data, error, noData } = useFetchReportData("http://localhost:5000/api/visit/view_visits");
+  const { data, error, noData } = useFetchReportData(apiUrl + "/api/visit/view_visits");
 
   return (
     <div>

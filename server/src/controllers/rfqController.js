@@ -8,13 +8,15 @@ import submitRFQData from "../components/addReocrdAPI.js";
 import { AppNames } from "../zohoAssets/AppLists.js";
 import { ReportNameLists } from "../zohoAssets/ReportLists.js";
 
+const apiurl = process.env.REACT_APP_LOCALHOST
+
 // const pmEmail = process.env.PM_EMAIL;
 
 /** Customer RFQs **/
 export const fetchCustomerRfqs = async (req, res) => {
   try {
     const summaryResponse = await axios.get(
-      "http://localhost:5000/api/summary/details"
+      apiurl + "/api/summary/details"
     );
     const customerRfqIds =
       summaryResponse.data.result.data.rfq_summary_details.customer_rfq_ids;
@@ -300,7 +302,7 @@ const uploadFiles = async (drawingFile, partnerQuoteFile) => {
   }
 
   try {
-    const response = await axios.post('http://localhost:5000/api/add_rfq_record', formData, {
+    const response = await axios.post(apiurl + '/api/add_rfq_record', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
         Authorization: `Bearer YOUR_ACCESS_TOKEN`, // Include your access token if required

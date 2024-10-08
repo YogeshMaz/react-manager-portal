@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'; // Import Link here
 import { useAuth } from '../Authentication/AuthContext'; // Import the useAuth hook
 import './Login.css'; // Your updated CSS file
 import logo from '../../images/MM.jpeg';
+const apiUrl = process.env.REACT_APP_LOCALHOST;
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -19,7 +20,7 @@ const LoginPage = () => {
     console.log('Password:', password); // Check password value
     
     try {
-      const response = await fetch('http://localhost:5000/api/login_details', {
+      const response = await fetch(apiUrl + '/api/login_details', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
