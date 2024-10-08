@@ -71,7 +71,7 @@ const Profile = () => {
                       <div className="col-sm-7">
                         <div className="card-block">
                           <h5 className="m-b-20 p-b-5 b-b-default f-w-600">
-                            Information
+                            Profile Information
                           </h5>
                           <div className="row">
                             <div className="col-sm-6">
@@ -80,28 +80,8 @@ const Profile = () => {
                                 {userInfos?.email || "N/A"}
                               </h6>
                             </div>
-                            <div className="col-sm-6">
-                              <p className="m-b-10 f-w-600">Phone</p>
-                              <h6 className="text-muted f-w-400">
-                                98979989898
-                              </h6>
-                            </div>
                           </div>
-                          <div className="row mt-3">
-                            <div className="col-sm-6">
-                              <p className="m-b-10 f-w-600">
-                                Organisation Name
-                              </p>
-                              <h6 className="text-muted f-w-400">
-                                Organisation
-                              </h6>
-                            </div>
-                            <div className="col-sm-6">
-                              <p className="m-b-10 f-w-600">Address</p>
-                              <h6 className="text-muted f-w-400">Address</h6>
-                            </div>
-                          </div>
-                          <ul className="social-link list-unstyled m-t-40 m-b-10">
+                          {/* <ul className="social-link list-unstyled m-t-40 m-b-10">
                             <li>
                               <a
                                 href="#!"
@@ -141,7 +121,7 @@ const Profile = () => {
                                 <FaInstagram />
                               </a>
                             </li>
-                          </ul>
+                          </ul> */}
                         </div>
                       </div>
                     </>

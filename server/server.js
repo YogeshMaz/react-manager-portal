@@ -24,6 +24,9 @@ app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json());
 
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, 'client/build')));
+
 // Call the getAccessToken function initially and set to refresh every hour
 getAccessToken();
 setInterval(getAccessToken, 3600000);
@@ -95,6 +98,11 @@ app.use("/api/purchase", purchaseRoutes);
 app.use("/api/drawing", drawingRoutes);
 app.use("/api/asset", assetRoutes);
 app.use("/api/visit", visitRoutes);
+
+// Route all other requests to the React app
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+});
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
