@@ -18,14 +18,15 @@ export const fetchCustomerRfqs = async (req, res) => {
     const summaryResponse = await axios.get(
       apiurl + "/api/summary/details"
     );
-    const customerRfqIds =
-      summaryResponse.data.result.data.rfq_summary_details.customer_rfq_ids;
-    console.log("customer rfq ids", customerRfqIds);
+    console.log(summaryResponse.data.data[0]);
+    const customerRfqIds = summaryResponse.data.data[0].customer_rfq_ids1;
+    const customerRfqIdsArray = customerRfqIds ? customerRfqIds.split(",") : [];
+    console.log("customer rfq ids", customerRfqIdsArray);
     const appName = AppNames.RFQ;
     const reportName = ReportNameLists.rfqManagement.customerRfq;
     const criteriaField = "RFQ_Reference_Number";
     const access_token = await getAccessToken();
-    const reportDataPromises = customerRfqIds.map(async (eachRfqId) => {
+    const reportDataPromises = customerRfqIdsArray.map(async (eachRfqId) => {
       const data = await fetchReportCriteria(
         appName,
         reportName,

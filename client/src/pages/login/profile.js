@@ -1,9 +1,10 @@
 import axios from "axios";
 import "./profile.css";
 import React, { useEffect, useState } from "react";
-import { FaInstagram } from "react-icons/fa";
-import { FaXTwitter } from "react-icons/fa6";
-import { FiFacebook } from "react-icons/fi";
+import { Long } from 'bson';
+// import { FaInstagram } from "react-icons/fa";
+// import { FaXTwitter } from "react-icons/fa6";
+// import { FiFacebook } from "react-icons/fi";
 import { publishedUrls } from "../../components/zohoAssets/PublishedUrl";
 import { constructImageUrl } from "../../components/columns/utilities/ConstructImageUrl";
 import { AppNames } from "../../components/zohoAssets/AppLists";
@@ -19,6 +20,7 @@ const Profile = () => {
     const fetchUserInfos = async () => {
       try {
         const response = await axios.get(apiUrl + "/api/userInfos");
+        console.log("response ", response.data)
         setUserInfos(response.data); // Set the response data directly, assuming it's a string
         setLoading(false);
       } catch (err) {
@@ -32,12 +34,15 @@ const Profile = () => {
   }, []);
 
   let imageUrl = "";
+  const low = userInfos?.ID?.low;
+  const high = userInfos?.ID?.high;
+  const mergedID = Long.fromBits(low, high);
   if (userInfos?.profile) {
     imageUrl = constructImageUrl(
       userInfos?.profile,
       AppNames.PM,
       ReportNameLists.loginManagement.employeeDatabase,
-      userInfos?.ID,
+      mergedID,
       "Upload_Photo",
       publishedUrls.LoginManagement.employeeDatabase
     );
@@ -62,7 +67,7 @@ const Profile = () => {
                             {/* <p>{userInfos?.profile || 'N/A'}</p> */}
                           </div>
                           <h6 className="f-w-600">
-                            {userInfos?.name || "N/A"}
+                            {userInfos?.email || "N/A"}
                           </h6>
                           <p>{userInfos?.role || "N/A"}</p>
                           <i className=" mdi mdi-square-edit-outline feather icon-edit m-t-10 f-16"></i>

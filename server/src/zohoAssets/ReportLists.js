@@ -1,4 +1,7 @@
 export const ReportNameLists = {
+  summaryManagement:{
+    summaryDetails: "customer_summary_details_Report"
+  },
   rfqManagement: {
     customerRfq: "Customer_Upload_RFQ_Internal_View",
     rfqDashboard: {

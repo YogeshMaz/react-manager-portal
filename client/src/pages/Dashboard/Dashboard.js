@@ -14,16 +14,21 @@ import {
   MdWebAsset,
   MdOutlineInventory,
 } from "react-icons/md";
-import usefetchCustomAPIData from "../../components/hooks/fetchCustomAPI";
+// import usefetchCustomAPIData from "../../components/hooks/fetchCustomAPI";
+import useFetchReportData from "../../components/hooks/fetchReportData";
 import { APILinkRoutes } from "../../components/apiLinks/APILinkRoutes";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Box } from "@mui/material";
 import Skeleton from "@mui/material/Skeleton";
 
 const Dashboard = () => {
-  const { data, error, noData } = usefetchCustomAPIData(
+  const { data, error, noData } = useFetchReportData(
     APILinkRoutes.summaryRoute
   );
+
+  // console.log("dash data ", data[0])
+
+  const eData = data[0];
 
   const location = useLocation();
 
@@ -71,7 +76,8 @@ const Dashboard = () => {
                   <DashboardBox
                     icon={<MdOutlineGroup />}
                     content={["Customer RFQs"]}
-                    title={data.rfq_summary_details.total_customer_rfqs}
+                    // title={data?.rfq_summary_details?.total_customer_rfqs}
+                    title={eData?.customer_rfq_ids1?.split(",")?.length}
                   />
                 </Link>
               </div>
@@ -80,7 +86,7 @@ const Dashboard = () => {
                   <DashboardBox
                     icon={<MdOutlineSpaceDashboard />}
                     content={["RFQ Floated"]}
-                    title={data.rfq_summary_details.total_rfq_counts}
+                    title={eData?.total_rfq_counts}
                   />
                 </Link>
               </div>
@@ -99,7 +105,7 @@ const Dashboard = () => {
                     icon={<TbTruckDelivery />}
                     content={["Upcoming Deliveries"]}
                     title={
-                      data.project_summary_details.total_upcoming_deliveries
+                      eData?.total_upcoming_deliveries
                     }
                   />
                 </Link>
@@ -109,7 +115,7 @@ const Dashboard = () => {
                   <DashboardBox
                     icon={<MdOutlineHighQuality />}
                     content={["Quality Check"]}
-                    title={data.project_summary_details.total_quality_check}
+                    title={eData?.total_quality_check}
                   />
                 </Link>
               </div>
@@ -118,7 +124,7 @@ const Dashboard = () => {
                   <DashboardBox
                     icon={<MdOutlineInventory />}
                     content={["Vendor POs"]}
-                    title={data.purchase_summary_details.total_vendor_pos}
+                    title={eData?.total_vendor_pos}
                   />
                 </Link>
               </div>
@@ -127,7 +133,7 @@ const Dashboard = () => {
                   <DashboardBox
                     icon={<MdOutlineReceiptLong />}
                     content={["Vendor Invoices"]}
-                    title={data.purchase_summary_details.total_vendor_invoices}
+                    title={eData?.total_vendor_invoices}
                   />
                 </Link>
               </div>
@@ -136,7 +142,7 @@ const Dashboard = () => {
                   <DashboardBox
                     icon={<MdOutlinePreview />}
                     content={["Request / View Payments"]}
-                    title={data.purchase_summary_details.total_view_payments}
+                    title={eData?.total_view_payments}
                   />
                 </Link>
               </div>

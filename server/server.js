@@ -5,6 +5,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import path from "path";
 import fs from "fs";
+import mongoose from "mongoose";
 import { fileURLToPath } from "url";
 import summaryRoutes from "./src/routes/summaryRoutes.js";
 import rfqRoutes from "./src/routes/rfqRoutes.js";
@@ -19,10 +20,33 @@ import { fetchPMLoginDetails } from "./src/authentication/loginController.js";
 dotenv.config();
 
 const app = express();
+
+
 app.use(cors());
 app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json());
+
+mongoose.connect("mongodb://localhost:27017/LoginDB");
+
+const UserSchema = new mongoose.Schema({
+  Name: String,
+  Email: String
+})
+
+const UserModel = mongoose.model("LoginReport", UserSchema, "LoginReport");
+
+app.get("/getUsers", (req, res) => {
+  UserModel.find({})
+    .then(function(LoginReport){
+      // console.log("Found LoginReports:", LoginReport);
+      res.json(LoginReport);
+    })
+    .catch(function(err){
+      console.log("Error finding LoginReports:", err); 
+      res.status(500).send(err);
+    });
+});
 
 // Call the getAccessToken function initially and set to refresh every hour
 getAccessToken();

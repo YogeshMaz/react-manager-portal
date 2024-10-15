@@ -1,5 +1,3 @@
-import fs from "fs";
-import path from "path";
 import axios from "axios";
 import fetchReportData from "../components/FetchReportAPIData.js";
 import getAccessToken from "../accessToken/checkAuthExpiration.js";
@@ -11,25 +9,33 @@ export const fetchPMLoginDetails = async (req, res) => {
     const { email, password } = req.body;
     console.log("Email:", email, "Password:", password);
 
-    const appName = AppNames.PM;
-    const reportName = ReportNameLists.loginManagement.employeeDatabse;
-    const access_token = await getAccessToken();
-    const data = await fetchReportData(appName, reportName, access_token);
+    // const appName = AppNames.PM;
+    // const reportName = ReportNameLists.loginManagement.employeeDatabse;
+    // const access_token = await getAccessToken();
+    // const data = await fetchReportData(appName, reportName, access_token);
 
-    // Check if the provided email and password match any user in the data
-    const user = data.data.find(
-      (user) => user.Email === email && user.Login_Pin === password
+    const data = await axios.get("http://localhost:5000/getUsers");
+    // console.log("Fetched data:", data.data);  // Log to verify structure
+
+    const eData = data.data;  // Access all users, not just the first one
+    const sanitizedEmail = email.trim().toLowerCase();
+
+    // Find the user by comparing email and login pin
+    const user = eData.find(
+      (user) => 
+        user.Email.trim().toLowerCase() === sanitizedEmail &&
+        user['Login Pin'] === Number(password)  // Ensure Login Pin is a number
     );
+
+    console.log("User found:", user.Email);  // Log if user was found
 
     if (user) {
       // Instead of updating .env, store the email in a global variable
-      global.loggedInEmail = user.Email;
-      global.loggedInName = user.Name.first_name;
-      global.loggedInUserRole = user.Vertical;
-      global.loggedInUserProfile = user.Upload_Photo;
-      global.loggedInUserId = user.ID;
-      // console.log("name", user.Name["Name.first_name"]);
-      // console.log(`Logged in email set to: ${global.loggedInEmail}`);
+      global.loggedInEmail = user?.Email;
+      global.loggedInName = user?.Name;
+      global.loggedInUserRole = user?.Department;
+      global.loggedInUserProfile = user?.["Upload Photo"];
+      global.loggedInUserId = user?.ID;
 
       // Respond with a success message if login is successful
       return res

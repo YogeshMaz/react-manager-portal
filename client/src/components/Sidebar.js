@@ -253,6 +253,20 @@ const Sidebar = () => {
           </Link>
         </li>
 
+        <li>
+          <Link to="/loginReport">
+            <Button
+              className={`w-100 ${isActive("/") ? "active" : ""}`}
+              onClick={() => setOpenDropdown(null)}
+            >
+              <span className="icon">
+                <MdOutlineSpaceDashboard sx={{ fontSize: 24 }} />
+              </span>{" "}
+              Login Report
+            </Button>
+          </Link>
+        </li>
+
         {/* Settings and Logout */}
         {/* <li>
           <Link to="/settings">

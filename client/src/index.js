@@ -17,7 +17,7 @@ const container = document.getElementById("root");
 const root = createRoot(container); 
 
 root.render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <BrowserRouter>
       <AuthProvider> {/* Wrap with AuthProvider */}
         <ThemeProviderComponent>
@@ -25,5 +25,5 @@ root.render(
         </ThemeProviderComponent>
       </AuthProvider>
     </BrowserRouter>
-  </React.StrictMode>
+  // </React.StrictMode>
 );

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Box, CircularProgress, Alert } from '@mui/material';
 import Button from '@mui/material/Button'; 
-
+import { Long } from 'bson';
 import { ReportNameLists } from '../zohoAssets/ReportLists';
 import { AppNames } from '../zohoAssets/AppLists';
 import { publishedUrls } from '../zohoAssets/PublishedUrl';
@@ -32,12 +32,15 @@ const UserInfos = () => {
   }, []); // Empty dependency array ensures this runs only on component mount
 
   let imageUrl = "";
+  const low = userInfos?.ID?.low;
+  const high = userInfos?.ID?.high;
+  const mergedID = Long.fromBits(low, high);
   if (userInfos?.profile) {
     imageUrl = constructImageSrc(
       userInfos?.profile,
       AppNames.PM,
       ReportNameLists.loginManagement.employeeDatabase,
-      userInfos?.ID,
+      mergedID,
       "Upload_Photo",
       publishedUrls.LoginManagement.employeeDatabase
     );

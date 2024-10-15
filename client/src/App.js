@@ -18,6 +18,7 @@ import AddAssets from "./pages/assets/AddAssets";
 import ViewAssets from "./pages/assets/ViewAssets";
 import AssestUtilisation from "./pages/assets/AssestUtilisation";
 import Analytics from "./pages/analytics/Analytics";
+import LoginReport from "./pages/analytics/LoginReport";
 import Profile from "./pages/login/profile";
 import LoginPage from "./pages/Authentication/Login";
 import DashboardBox from "./pages/Dashboard/Dashboard";
@@ -202,6 +203,12 @@ function App() {
               path="/analytics"
               element={
                 isAuthenticated ? <Analytics /> : <Navigate to="/login" />
+              }
+            />
+            <Route
+              path="/loginReport"
+              element={
+                isAuthenticated ? <LoginReport /> : <Navigate to="/login" />
               }
             />
             <Route
